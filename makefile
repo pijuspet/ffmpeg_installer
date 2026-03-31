@@ -1,10 +1,7 @@
 SHELL         := /bin/bash
-PYTHON        := python3
-SCRIPT        := ffmpeg-installer.py
 
 # ── Configurable variables ───────────────────────────────────────────────────
-PATCH         ?= ffmpeg_version.diff
-PATCH2        ?= hevc-patch.diff
+PATCH         ?= custom_ffmpeg.diff
 CLONE_DIR     ?= ffmpeg
 BRANCH        ?= release/8.0
 JOBS          ?= $(shell nproc 2>/dev/null || sysctl -n hw.ncpu 2>/dev/null || echo 4)
@@ -19,7 +16,6 @@ deps:
 	@command -v gcc        >/dev/null 2>&1 || { echo "[ERROR] gcc not found";        exit 1; }
 	@command -v patch      >/dev/null 2>&1 || { echo "[ERROR] patch not found";      exit 1; }
 	@command -v pkg-config >/dev/null 2>&1 || { echo "[ERROR] pkg-config not found"; exit 1; }
-	@command -v $(PYTHON)  >/dev/null 2>&1 || { echo "[ERROR] $(PYTHON) not found";  exit 1; }
 	@echo "[OK]    All dependencies found."
 
 clone: deps
@@ -33,7 +29,7 @@ clone: deps
 	@echo "[OK]    Clone complete."
 
 patch: clone
-	@cd $(CLONE_DIR) && for p in ../$(PATCH) ../$(PATCH2); do \
+	@cd $(CLONE_DIR) && for p in ../$(PATCH); do \
 		name=$$(basename $$p); \
 		echo "[INFO]  Applying patch: $$name..."; \
 		if patch -p1 --forward --force < $$p; then \
