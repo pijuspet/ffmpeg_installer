@@ -1,5 +1,5 @@
 diff -u -I '/tmp/ffconf\.' -x .git -x config.h -x config_components.h -x '*tests' -x '*.pc' -x ffmpeg_g -x ffprobe_g -x ffmpeg -x ffprobe -x .version -x '*.so' -x '*.so.*' -x '*.ver.*' -x '*.a' -x '*.o' -x '*.d' -x '*.S' -x '*.asm' -x doc -x ffversion.h -r a/ffbuild/version.sh b/ffbuild/version.sh
---- a/ffbuild/version.sh	2026-03-31 09:28:41.756447389 +0200
+--- a/ffbuild/version.sh	2026-04-17 17:36:27.835022517 +0200
 +++ b/ffbuild/version.sh	2026-01-22 12:00:08.864232411 +0100
 @@ -45,7 +45,7 @@
      exit
@@ -11,7 +11,7 @@ diff -u -I '/tmp/ffconf\.' -x .git -x config.h -x config_components.h -x '*tests
  
  # String used for preprocessor guard
 diff -u -I '/tmp/ffconf\.' -x .git -x config.h -x config_components.h -x '*tests' -x '*.pc' -x ffmpeg_g -x ffprobe_g -x ffmpeg -x ffprobe -x .version -x '*.so' -x '*.so.*' -x '*.ver.*' -x '*.a' -x '*.o' -x '*.d' -x '*.S' -x '*.asm' -x doc -x ffversion.h -r a/libavcodec/avcodec.h b/libavcodec/avcodec.h
---- a/libavcodec/avcodec.h	2026-03-31 09:28:41.853788647 +0200
+--- a/libavcodec/avcodec.h	2026-04-17 17:36:27.882866205 +0200
 +++ b/libavcodec/avcodec.h	2026-02-05 13:10:55.532808016 +0100
 @@ -439,6 +439,7 @@
      enum AVMediaType codec_type; /* see AVMEDIA_TYPE_xxx */
@@ -22,8 +22,8 @@ diff -u -I '/tmp/ffconf\.' -x .git -x config.h -x config_components.h -x '*tests
      /**
       * fourcc (LSB first, so "ABCD" -> ('D'<<24) + ('C'<<16) + ('B'<<8) + 'A').
 diff -u -I '/tmp/ffconf\.' -x .git -x config.h -x config_components.h -x '*tests' -x '*.pc' -x ffmpeg_g -x ffprobe_g -x ffmpeg -x ffprobe -x .version -x '*.so' -x '*.so.*' -x '*.ver.*' -x '*.a' -x '*.o' -x '*.d' -x '*.S' -x '*.asm' -x doc -x ffversion.h -r a/libavcodec/decode.c b/libavcodec/decode.c
---- a/libavcodec/decode.c	2026-03-31 09:28:41.898403390 +0200
-+++ b/libavcodec/decode.c	2026-03-31 12:57:59.772876846 +0200
+--- a/libavcodec/decode.c	2026-04-17 17:36:27.910775023 +0200
++++ b/libavcodec/decode.c	2026-03-31 14:18:36.047803637 +0200
 @@ -680,8 +680,9 @@
  
          /* the only case where decode data is not set should be decoders
@@ -37,8 +37,8 @@ diff -u -I '/tmp/ffconf\.' -x .git -x config.h -x config_components.h -x '*tests
          if (frame->private_ref) {
              FrameDecodeData *fdd = frame->private_ref;
 diff -u -I '/tmp/ffconf\.' -x .git -x config.h -x config_components.h -x '*tests' -x '*.pc' -x ffmpeg_g -x ffprobe_g -x ffmpeg -x ffprobe -x .version -x '*.so' -x '*.so.*' -x '*.ver.*' -x '*.a' -x '*.o' -x '*.d' -x '*.S' -x '*.asm' -x doc -x ffversion.h -r a/libavcodec/h264_cabac.c b/libavcodec/h264_cabac.c
---- a/libavcodec/h264_cabac.c	2026-03-31 09:28:41.934906362 +0200
-+++ b/libavcodec/h264_cabac.c	2026-02-18 13:11:37.437730789 +0100
+--- a/libavcodec/h264_cabac.c	2026-04-17 17:36:27.942670815 +0200
++++ b/libavcodec/h264_cabac.c	2026-04-01 22:17:44.778805703 +0200
 @@ -1818,7 +1818,7 @@
   * because it allows improved constant propagation into get_cabac_cbf_ctx,
   * as well as because most blocks have zero CBFs. */
@@ -75,7 +75,7 @@ diff -u -I '/tmp/ffconf\.' -x .git -x config.h -x config_components.h -x '*tests
                                                          const uint8_t *scan, const uint8_t *scan8x8,
                                                          int pixel_shift, int mb_type, int cbp, int p)
  {
-@@ -1913,11 +1913,301 @@
+@@ -1913,11 +1913,274 @@
      }
  }
  
@@ -209,7 +209,7 @@ diff -u -I '/tmp/ffconf\.' -x .git -x config.h -x config_components.h -x '*tests
 +        uint8_t *ctx = coeff_abs_level1_ctx[node_ctx] + abs_level_m1_ctx_base; \
 +        /* preserve reverse order via index[], but no need to read scantable[] */ \
 +        --coeff_count; \
-+        if (get_cabac(CC, ctx) == 0) { \
++        if (__builtin_expect(get_cabac(CC, ctx) == 0, 1)) { \
 +            /* abs_level == 1 */ \
 +            node_ctx = coeff_abs_level_transition[0][node_ctx]; \
 +            get_cabac_bypass(CC); \
@@ -220,7 +220,7 @@ diff -u -I '/tmp/ffconf\.' -x .git -x config.h -x config_components.h -x '*tests
 +            node_ctx = coeff_abs_level_transition[1][node_ctx]; \
 +            while (coeff_abs < 15 && get_cabac(CC, ctx)) \
 +                coeff_abs++; \
-+            if (coeff_abs >= 15) { \
++            if (__builtin_expect(coeff_abs >= 15, 0)) { \
 +                int j_loop = 0; \
 +                while (get_cabac_bypass(CC) && j_loop < 23) \
 +                    j_loop++; \
@@ -244,33 +244,6 @@ diff -u -I '/tmp/ffconf\.' -x .git -x config.h -x config_components.h -x '*tests
 +#undef DECODE_SIGNIFICANCE_COUNT_ONLY
 +}
 +
-+static av_noinline void decode_cabac_residual_dc_internal_skip(const H264Context *h,
-+                                                          H264SliceContext *sl,
-+                                                          int cat, int n,
-+                                                          const uint8_t *scantable,
-+                                                          int max_coeff)
-+{
-+    decode_cabac_residual_internal_skip(h, sl, cat, n, scantable, max_coeff, 1, 0);
-+}
-+
-+static av_noinline void decode_cabac_residual_dc_internal_422_skip(const H264Context *h,
-+                                                              H264SliceContext *sl,
-+                                                              int cat, int n,
-+                                                              const uint8_t *scantable,
-+                                                              int max_coeff)
-+{
-+    decode_cabac_residual_internal_skip(h, sl, cat, n, scantable, max_coeff, 1, 1);
-+}
-+
-+static av_noinline void decode_cabac_residual_nondc_internal_skip(const H264Context *h,
-+                                                             H264SliceContext *sl,
-+                                                             int cat, int n,
-+                                                             const uint8_t *scantable,
-+                                                             int max_coeff)
-+{
-+    decode_cabac_residual_internal_skip(h, sl, cat, n, scantable, max_coeff, 0, 0);
-+}
-+
 +av_always_inline void decode_cabac_residual_dc_skip(const H264Context *h,
 +                                                      H264SliceContext *sl,
 +                                                      int16_t *block,
@@ -283,7 +256,7 @@ diff -u -I '/tmp/ffconf\.' -x .git -x config.h -x config_components.h -x '*tests
 +        sl->non_zero_count_cache[scan8[n]] = 0;
 +        return;
 +    }
-+    decode_cabac_residual_dc_internal_skip(h, sl, cat, n, scantable, max_coeff);
++    decode_cabac_residual_internal_skip(h, sl, cat, n, scantable, max_coeff, 1, 0);
 +}
 +
 +av_always_inline void
@@ -297,7 +270,7 @@ diff -u -I '/tmp/ffconf\.' -x .git -x config.h -x config_components.h -x '*tests
 +        sl->non_zero_count_cache[scan8[n]] = 0;
 +        return;
 +    }
-+    decode_cabac_residual_dc_internal_422_skip(h, sl, cat, n, scantable, max_coeff);
++    decode_cabac_residual_internal_skip(h, sl, cat, n, scantable, max_coeff, 1, 1);
 +}
 +
 +av_always_inline void decode_cabac_residual_nondc_skip(const H264Context *h,
@@ -317,7 +290,7 @@ diff -u -I '/tmp/ffconf\.' -x .git -x config.h -x config_components.h -x '*tests
 +        }
 +        return;
 +    }
-+    decode_cabac_residual_nondc_internal_skip(h, sl, cat, n, scantable, max_coeff);
++    decode_cabac_residual_internal_skip(h, sl, cat, n, scantable, max_coeff, 0, 0);
 +}
 +
 +av_always_inline void 
@@ -378,7 +351,7 @@ diff -u -I '/tmp/ffconf\.' -x .git -x config.h -x config_components.h -x '*tests
  {
      const SPS *sps = h->ps.sps;
      int mb_xy;
-@@ -2085,15 +2375,18 @@
+@@ -2085,27 +2348,34 @@
                  for( i = 0; i < 16; i++ ) {
                      int pred = pred_intra_mode(h, sl, i);
                      sl->intra4x4_pred_mode_cache[scan8[i]] = decode_cabac_mb_intra4x4_pred_mode(sl, pred);
@@ -394,16 +367,39 @@ diff -u -I '/tmp/ffconf\.' -x .git -x config.h -x config_components.h -x '*tests
 -            if (ff_h264_check_intra4x4_pred_mode(sl->intra4x4_pred_mode_cache, h->avctx,
 -                                                 sl->top_samples_available, sl->left_samples_available) < 0 )
 -                return -1;
+-        } else {
+-            sl->intra16x16_pred_mode = ff_h264_check_intra_pred_mode(h->avctx, sl->top_samples_available,
+-                                                                     sl->left_samples_available, sl->intra16x16_pred_mode, 0);
+-            if (sl->intra16x16_pred_mode < 0) return -1;
 +            if (!h->avctx->motion_vectors_only) {
 +                if (ff_h264_check_intra4x4_pred_mode(sl->intra4x4_pred_mode_cache, h->avctx,
 +                                                    sl->top_samples_available, sl->left_samples_available) < 0 )
 +                    return -1;
 +            }
 +                
++        } else {
++            if (!h->avctx->motion_vectors_only) {
++                sl->intra16x16_pred_mode = ff_h264_check_intra_pred_mode(h->avctx, sl->top_samples_available,
++                                                                         sl->left_samples_available, sl->intra16x16_pred_mode, 0);
++                if (sl->intra16x16_pred_mode < 0) return -1;
++            }
+         }
+         if(decode_chroma){
+             h->chroma_pred_mode_table[mb_xy] =
+             pred_mode                        = decode_cabac_mb_chroma_pre_mode(h, sl);
+ 
+-            pred_mode= ff_h264_check_intra_pred_mode(h->avctx, sl->top_samples_available,
+-                                                     sl->left_samples_available, pred_mode, 1 );
+-            if( pred_mode < 0 ) return -1;
++            if (!h->avctx->motion_vectors_only) {
++                pred_mode= ff_h264_check_intra_pred_mode(h->avctx, sl->top_samples_available,
++                                                         sl->left_samples_available, pred_mode, 1 );
++                if( pred_mode < 0 ) return -1;
++            }
+             sl->chroma_pred_mode = pred_mode;
          } else {
-             sl->intra16x16_pred_mode = ff_h264_check_intra_pred_mode(h->avctx, sl->top_samples_available,
-                                                                      sl->left_samples_available, sl->intra16x16_pred_mode, 0);
-@@ -2393,8 +2686,6 @@
+             sl->chroma_pred_mode = DC_128_PRED8x8;
+@@ -2393,8 +2663,6 @@
  
      if( cbp || IS_INTRA16x16( mb_type ) ) {
          const uint8_t *scan, *scan8x8;
@@ -412,7 +408,7 @@ diff -u -I '/tmp/ffconf\.' -x .git -x config.h -x config_components.h -x '*tests
          // decode_cabac_mb_dqp
          if(get_cabac_noinline( &sl->cabac, &sl->cabac_state[60 + (sl->last_qscale_diff != 0)])){
              int val = 1;
-@@ -2433,29 +2724,32 @@
+@@ -2433,29 +2701,32 @@
              scan    = sl->qscale ? h->zigzag_scan : h->zigzag_scan_q0;
          }
  
@@ -455,7 +451,7 @@ diff -u -I '/tmp/ffconf\.' -x .git -x config.h -x config_components.h -x '*tests
                          }
                      }
                  }
-@@ -2464,20 +2758,23 @@
+@@ -2464,20 +2735,23 @@
                  fill_rectangle(&sl->non_zero_count_cache[scan8[32]], 4, 4, 8, 0, 1);
              }
          } else /* yuv420 */ {
@@ -484,8 +480,8 @@ diff -u -I '/tmp/ffconf\.' -x .git -x config.h -x config_components.h -x '*tests
                  }
              } else {
 diff -u -I '/tmp/ffconf\.' -x .git -x config.h -x config_components.h -x '*tests' -x '*.pc' -x ffmpeg_g -x ffprobe_g -x ffmpeg -x ffprobe -x .version -x '*.so' -x '*.so.*' -x '*.ver.*' -x '*.a' -x '*.o' -x '*.d' -x '*.S' -x '*.asm' -x doc -x ffversion.h -r a/libavcodec/h264_cavlc.c b/libavcodec/h264_cavlc.c
---- a/libavcodec/h264_cavlc.c	2026-03-31 09:28:41.934906362 +0200
-+++ b/libavcodec/h264_cavlc.c	2026-02-18 13:14:00.231102669 +0100
+--- a/libavcodec/h264_cavlc.c	2026-04-17 17:36:27.942670815 +0200
++++ b/libavcodec/h264_cavlc.c	2026-04-01 22:17:58.046816727 +0200
 @@ -402,7 +402,7 @@
   * @param max_coeff number of coefficients in the block
   * @return <0 if an error occurred
@@ -720,7 +716,48 @@ diff -u -I '/tmp/ffconf\.' -x .git -x config.h -x config_components.h -x '*tests
  {
      int mb_xy;
      int partition_count;
-@@ -1096,15 +1303,15 @@
+@@ -790,20 +997,29 @@
+                     sl->intra4x4_pred_mode_cache[scan8[i]] = mode;
+             }
+             write_back_intra_pred_mode(h, sl);
+-            if (ff_h264_check_intra4x4_pred_mode(sl->intra4x4_pred_mode_cache, h->avctx,
+-                                                 sl->top_samples_available, sl->left_samples_available) < 0)
+-                return -1;
++            if (!h->avctx->motion_vectors_only) {
++                if (ff_h264_check_intra4x4_pred_mode(sl->intra4x4_pred_mode_cache, h->avctx,
++                                                     sl->top_samples_available, sl->left_samples_available) < 0)
++                    return -1;
++            }
+         }else{
+-            sl->intra16x16_pred_mode = ff_h264_check_intra_pred_mode(h->avctx, sl->top_samples_available,
+-                                                                     sl->left_samples_available, sl->intra16x16_pred_mode, 0);
+-            if (sl->intra16x16_pred_mode < 0)
+-                return -1;
++            if (!h->avctx->motion_vectors_only) {
++                sl->intra16x16_pred_mode = ff_h264_check_intra_pred_mode(h->avctx, sl->top_samples_available,
++                                                                         sl->left_samples_available, sl->intra16x16_pred_mode, 0);
++                if (sl->intra16x16_pred_mode < 0)
++                    return -1;
++            }
+         }
+         if(decode_chroma){
+-            pred_mode= ff_h264_check_intra_pred_mode(h->avctx, sl->top_samples_available,
+-                                                     sl->left_samples_available, get_ue_golomb_31(&sl->gb), 1);
+-            if(pred_mode < 0)
+-                return -1;
++            int chroma_mode = get_ue_golomb_31(&sl->gb);
++            if (!h->avctx->motion_vectors_only) {
++                pred_mode= ff_h264_check_intra_pred_mode(h->avctx, sl->top_samples_available,
++                                                         sl->left_samples_available, chroma_mode, 1);
++                if(pred_mode < 0)
++                    return -1;
++            } else {
++                pred_mode = chroma_mode;
++            }
+             sl->chroma_pred_mode = pred_mode;
+         } else {
+             sl->chroma_pred_mode = DC_128_PRED8x8;
+@@ -1096,15 +1312,15 @@
              scan    = sl->qscale ? h->zigzag_scan : h->zigzag_scan_q0;
          }
  
@@ -739,7 +776,7 @@ diff -u -I '/tmp/ffconf\.' -x .git -x config.h -x config_components.h -x '*tests
                  return -1;
              }
          } else {
-@@ -1112,22 +1319,24 @@
+@@ -1112,22 +1328,24 @@
  
              if(cbp&0x30){
                  for(chroma_idx=0; chroma_idx<2; chroma_idx++)
@@ -771,7 +808,7 @@ diff -u -I '/tmp/ffconf\.' -x .git -x config.h -x config_components.h -x '*tests
                              mb += 16 << pixel_shift;
                          }
 diff -u -I '/tmp/ffconf\.' -x .git -x config.h -x config_components.h -x '*tests' -x '*.pc' -x ffmpeg_g -x ffprobe_g -x ffmpeg -x ffprobe -x .version -x '*.so' -x '*.so.*' -x '*.ver.*' -x '*.a' -x '*.o' -x '*.d' -x '*.S' -x '*.asm' -x doc -x ffversion.h -r a/libavcodec/h264_mb.c b/libavcodec/h264_mb.c
---- a/libavcodec/h264_mb.c	2026-03-31 09:28:41.938962248 +0200
+--- a/libavcodec/h264_mb.c	2026-04-17 17:36:27.942670815 +0200
 +++ b/libavcodec/h264_mb.c	2026-02-05 09:53:25.761153283 +0100
 @@ -799,6 +799,10 @@
  
@@ -785,7 +822,7 @@ diff -u -I '/tmp/ffconf\.' -x .git -x config.h -x config_components.h -x '*tests
      const int mb_type = h->cur_pic.mb_type[mb_xy];
      int is_complex    = CONFIG_SMALL || sl->is_complex ||
 diff -u -I '/tmp/ffconf\.' -x .git -x config.h -x config_components.h -x '*tests' -x '*.pc' -x ffmpeg_g -x ffprobe_g -x ffmpeg -x ffprobe -x .version -x '*.so' -x '*.so.*' -x '*.ver.*' -x '*.a' -x '*.o' -x '*.d' -x '*.S' -x '*.asm' -x doc -x ffversion.h -r a/libavcodec/h264_parser.c b/libavcodec/h264_parser.c
---- a/libavcodec/h264_parser.c	2026-03-31 09:28:41.938962248 +0200
+--- a/libavcodec/h264_parser.c	2026-04-17 17:36:27.942670815 +0200
 +++ b/libavcodec/h264_parser.c	2026-02-02 08:42:49.250068787 +0100
 @@ -593,6 +593,14 @@
  
@@ -814,7 +851,7 @@ diff -u -I '/tmp/ffconf\.' -x .git -x config.h -x config_components.h -x '*tests
  }
  
 diff -u -I '/tmp/ffconf\.' -x .git -x config.h -x config_components.h -x '*tests' -x '*.pc' -x ffmpeg_g -x ffprobe_g -x ffmpeg -x ffprobe -x .version -x '*.so' -x '*.so.*' -x '*.ver.*' -x '*.a' -x '*.o' -x '*.d' -x '*.S' -x '*.asm' -x doc -x ffversion.h -r a/libavcodec/h264_picture.c b/libavcodec/h264_picture.c
---- a/libavcodec/h264_picture.c	2026-03-31 09:28:41.938962248 +0200
+--- a/libavcodec/h264_picture.c	2026-04-17 17:36:27.942670815 +0200
 +++ b/libavcodec/h264_picture.c	2026-02-05 13:36:27.646040713 +0100
 @@ -71,10 +71,10 @@
          av_refstruct_replace(&dst->ref_index[i],       src->ref_index[i]);
@@ -854,7 +891,7 @@ diff -u -I '/tmp/ffconf\.' -x .git -x config.h -x config_components.h -x '*tests
  
          err = AVERROR_INVALIDDATA;
 diff -u -I '/tmp/ffconf\.' -x .git -x config.h -x config_components.h -x '*tests' -x '*.pc' -x ffmpeg_g -x ffprobe_g -x ffmpeg -x ffprobe -x .version -x '*.so' -x '*.so.*' -x '*.ver.*' -x '*.a' -x '*.o' -x '*.d' -x '*.S' -x '*.asm' -x doc -x ffversion.h -r a/libavcodec/h264_ps.c b/libavcodec/h264_ps.c
---- a/libavcodec/h264_ps.c	2026-03-31 09:28:41.938962248 +0200
+--- a/libavcodec/h264_ps.c	2026-04-17 17:36:27.942670815 +0200
 +++ b/libavcodec/h264_ps.c	2026-02-23 10:03:53.841677744 +0100
 @@ -133,6 +133,15 @@
  static inline int decode_vui_parameters(GetBitContext *gb, void *logctx,
@@ -893,7 +930,7 @@ diff -u -I '/tmp/ffconf\.' -x .git -x config.h -x config_components.h -x '*tests
      if (pps->chroma_qp_index_offset[0] != pps->chroma_qp_index_offset[1])
          pps->chroma_qp_diff = 1;
 diff -u -I '/tmp/ffconf\.' -x .git -x config.h -x config_components.h -x '*tests' -x '*.pc' -x ffmpeg_g -x ffprobe_g -x ffmpeg -x ffprobe -x .version -x '*.so' -x '*.so.*' -x '*.ver.*' -x '*.a' -x '*.o' -x '*.d' -x '*.S' -x '*.asm' -x doc -x ffversion.h -r a/libavcodec/h264_refs.c b/libavcodec/h264_refs.c
---- a/libavcodec/h264_refs.c	2026-03-31 09:28:41.938962248 +0200
+--- a/libavcodec/h264_refs.c	2026-04-17 17:36:27.942670815 +0200
 +++ b/libavcodec/h264_refs.c	2026-02-23 09:56:22.992194498 +0100
 @@ -124,6 +124,8 @@
  
@@ -905,8 +942,8 @@ diff -u -I '/tmp/ffconf\.' -x .git -x config.h -x config_components.h -x '*tests
      return (h->cur_pic_ptr->f->width  != f->width ||
              h->cur_pic_ptr->f->height != f->height ||
 diff -u -I '/tmp/ffconf\.' -x .git -x config.h -x config_components.h -x '*tests' -x '*.pc' -x ffmpeg_g -x ffprobe_g -x ffmpeg -x ffprobe -x .version -x '*.so' -x '*.so.*' -x '*.ver.*' -x '*.a' -x '*.o' -x '*.d' -x '*.S' -x '*.asm' -x doc -x ffversion.h -r a/libavcodec/h264_slice.c b/libavcodec/h264_slice.c
---- a/libavcodec/h264_slice.c	2026-03-31 09:28:41.938962248 +0200
-+++ b/libavcodec/h264_slice.c	2026-02-23 10:09:45.869601254 +0100
+--- a/libavcodec/h264_slice.c	2026-04-17 17:36:27.942670815 +0200
++++ b/libavcodec/h264_slice.c	2026-04-01 21:46:47.643630037 +0200
 @@ -129,6 +129,17 @@
  
  static int alloc_scratch_buffers(H264SliceContext *sl, int linesize)
@@ -1237,8 +1274,8 @@ diff -u -I '/tmp/ffconf\.' -x .git -x config.h -x config_components.h -x '*tests
              }
          }
 diff -u -I '/tmp/ffconf\.' -x .git -x config.h -x config_components.h -x '*tests' -x '*.pc' -x ffmpeg_g -x ffprobe_g -x ffmpeg -x ffprobe -x .version -x '*.so' -x '*.so.*' -x '*.ver.*' -x '*.a' -x '*.o' -x '*.d' -x '*.S' -x '*.asm' -x doc -x ffversion.h -r a/libavcodec/h264dec.c b/libavcodec/h264dec.c
---- a/libavcodec/h264dec.c	2026-03-31 09:28:41.938962248 +0200
-+++ b/libavcodec/h264dec.c	2026-02-18 15:02:54.255341702 +0100
+--- a/libavcodec/h264dec.c	2026-04-17 17:36:27.942670815 +0200
++++ b/libavcodec/h264dec.c	2026-04-16 09:16:28.250267905 +0200
 @@ -97,7 +97,10 @@
                     pack16to32((*mv)[0][0][0], (*mv)[0][0][1]), 4);
      sl->mb_mbaff =
@@ -1251,41 +1288,48 @@ diff -u -I '/tmp/ffconf\.' -x .git -x config.h -x config_components.h -x '*tests
  }
  
  void ff_h264_draw_horiz_band(const H264Context *h, H264SliceContext *sl,
-@@ -964,7 +967,11 @@
+@@ -424,6 +427,11 @@
+     if (h->enable_er < 0 && (avctx->active_thread_type & FF_THREAD_SLICE))
+         h->enable_er = 0;
+ 
++    // Disable error resilience in MV-only mode - pixel buffers are minimal
++    // and error concealment would write out of bounds
++    if (avctx->motion_vectors_only)
++        h->enable_er = 0;
++
+     if (h->enable_er && (avctx->active_thread_type & FF_THREAD_SLICE)) {
+         av_log(avctx, AV_LOG_WARNING,
+                "Error resilience with slice threads is enabled. It is unsafe and unsupported and may crash. "
+@@ -964,11 +972,17 @@
          *got_frame = 1;
  
          if (CONFIG_MPEGVIDEODEC) {
 -            ff_print_debug_info2(h->avctx, dst,
-+            ff_print_debug_info_func ff_print_debug_info_cust = ff_print_debug_info2;
+-                                 out->mb_type,
+-                                 out->qscale_table,
+-                                 out->motion_val,
+-                                 out->mb_width, out->mb_height, out->mb_stride, 1);
 +            if (h->avctx->motion_vectors_only)
-+                ff_print_debug_info_cust = ff_print_debug_info2_optimized;
-+
-+            ff_print_debug_info_cust(h->avctx, dst,
-                                  out->mb_type,
-                                  out->qscale_table,
-                                  out->motion_val,
++                ff_print_debug_info2_optimized(h->avctx, dst,
++                                     out->mb_type,
++                                     out->motion_val,
++                                     out->mb_width, out->mb_height, out->mb_stride, 1);
++            else
++                ff_print_debug_info2(h->avctx, dst,
++                                     out->mb_type,
++                                     out->qscale_table,
++                                     out->motion_val,
++                                     out->mb_width, out->mb_height, out->mb_stride, 1);
+         }
+     }
+ 
 diff -u -I '/tmp/ffconf\.' -x .git -x config.h -x config_components.h -x '*tests' -x '*.pc' -x ffmpeg_g -x ffprobe_g -x ffmpeg -x ffprobe -x .version -x '*.so' -x '*.so.*' -x '*.ver.*' -x '*.a' -x '*.o' -x '*.d' -x '*.S' -x '*.asm' -x doc -x ffversion.h -r a/libavcodec/h264dec.h b/libavcodec/h264dec.h
---- a/libavcodec/h264dec.h	2026-03-31 09:28:41.938962248 +0200
-+++ b/libavcodec/h264dec.h	2026-02-18 14:07:19.106592281 +0100
-@@ -582,8 +582,146 @@
+--- a/libavcodec/h264dec.h	2026-04-17 17:36:27.942670815 +0200
++++ b/libavcodec/h264dec.h	2026-04-16 09:16:39.450836173 +0200
+@@ -582,8 +582,131 @@
      int skip_gray;
  } H264Context;
  
-+/**
-+ * Helper typedefs for motion vector specific functions
-+ */
-+
-+typedef void (*ff_print_debug_info_func)(
-+    AVCodecContext        *avctx,
-+    AVFrame               *pict,
-+    const uint32_t        *mbtype_table,
-+    const int8_t          *qscale_table,
-+    int16_t (*const        motion_val[2])[2],
-+    int                    mb_width,
-+    int                    mb_height,
-+    int                    mb_stride,
-+    int                    quarter_sample
-+);
 +
 +typedef void (*cabac_luma_residual_func)(
 +    const H264Context *h, 
@@ -1414,7 +1458,7 @@ diff -u -I '/tmp/ffconf\.' -x .git -x config.h -x config_components.h -x '*tests
  /**
   * Reconstruct bitstream slice_type.
   */
-@@ -614,13 +752,21 @@
+@@ -614,13 +737,21 @@
   * Decode a macroblock
   * @return 0 if OK, ER_AC_ERROR / ER_DC_ERROR / ER_MV_ERROR on error
   */
@@ -1439,7 +1483,7 @@ diff -u -I '/tmp/ffconf\.' -x .git -x config.h -x config_components.h -x '*tests
  void ff_h264_init_cabac_states(const H264Context *h, H264SliceContext *sl);
  
 diff -u -I '/tmp/ffconf\.' -x .git -x config.h -x config_components.h -x '*tests' -x '*.pc' -x ffmpeg_g -x ffprobe_g -x ffmpeg -x ffprobe -x .version -x '*.so' -x '*.so.*' -x '*.ver.*' -x '*.a' -x '*.o' -x '*.d' -x '*.S' -x '*.asm' -x doc -x ffversion.h -r a/libavcodec/h264dsp.c b/libavcodec/h264dsp.c
---- a/libavcodec/h264dsp.c	2026-03-31 09:28:41.938962248 +0200
+--- a/libavcodec/h264dsp.c	2026-04-17 17:36:27.942670815 +0200
 +++ b/libavcodec/h264dsp.c	2026-02-05 10:51:31.807706294 +0100
 @@ -63,8 +63,41 @@
  #include "h264addpx_template.c"
@@ -1521,7 +1565,7 @@ diff -u -I '/tmp/ffconf\.' -x .git -x config.h -x config_components.h -x '*tests
      c->h264_idct_add= FUNC(ff_h264_idct_add, depth);\
      c->h264_idct8_add= FUNC(ff_h264_idct8_add, depth);\
 diff -u -I '/tmp/ffconf\.' -x .git -x config.h -x config_components.h -x '*tests' -x '*.pc' -x ffmpeg_g -x ffprobe_g -x ffmpeg -x ffprobe -x .version -x '*.so' -x '*.so.*' -x '*.ver.*' -x '*.a' -x '*.o' -x '*.d' -x '*.S' -x '*.asm' -x doc -x ffversion.h -r a/libavcodec/h264dsp.h b/libavcodec/h264dsp.h
---- a/libavcodec/h264dsp.h	2026-03-31 09:28:41.938962248 +0200
+--- a/libavcodec/h264dsp.h	2026-04-17 17:36:27.942670815 +0200
 +++ b/libavcodec/h264dsp.h	2025-12-18 16:42:38.215409173 +0100
 @@ -118,7 +118,7 @@
  } H264DSPContext;
@@ -1533,8 +1577,8 @@ diff -u -I '/tmp/ffconf\.' -x .git -x config.h -x config_components.h -x '*tests
                               const int chroma_format_idc);
  void ff_h264dsp_init_arm(H264DSPContext *c, const int bit_depth,
 diff -u -I '/tmp/ffconf\.' -x .git -x config.h -x config_components.h -x '*tests' -x '*.pc' -x ffmpeg_g -x ffprobe_g -x ffmpeg -x ffprobe -x .version -x '*.so' -x '*.so.*' -x '*.ver.*' -x '*.a' -x '*.o' -x '*.d' -x '*.S' -x '*.asm' -x doc -x ffversion.h -r a/libavcodec/hevc/cabac.c b/libavcodec/hevc/cabac.c
---- a/libavcodec/hevc/cabac.c	2026-03-31 09:28:41.947074019 +0200
-+++ b/libavcodec/hevc/cabac.c	2026-02-18 16:50:58.132128888 +0100
+--- a/libavcodec/hevc/cabac.c	2026-04-17 17:36:27.954631737 +0200
++++ b/libavcodec/hevc/cabac.c	2026-04-01 22:05:09.315698190 +0200
 @@ -1002,13 +1002,9 @@
      int x_cg_last_sig, y_cg_last_sig;
  
@@ -1593,23 +1637,80 @@ diff -u -I '/tmp/ffconf\.' -x .git -x config.h -x config_components.h -x '*tests
      } else {
          shift        = 0;
          add          = 0;
-@@ -1400,6 +1417,15 @@
+@@ -1363,6 +1380,47 @@
+                 coeff_sign_flag = coeff_sign_flag_decode(lc, nb_significant_coeff_flag - 1) << (16 - (nb_significant_coeff_flag - 1));
+             }
+ 
++            if (mv_only) {
++                /* MV-only fast path: parse CABAC bins for rice param tracking
++                 * and sign data hiding, but skip coord lookup, dequant, and
++                 * coefficient storage entirely. */
++                for (m = 0; m < n_end; m++) {
++                    if (m < 8) {
++                        trans_coeff_level = 1 + coeff_abs_level_greater1_flag[m];
++                        if (trans_coeff_level == ((m == first_greater1_coeff_idx) ? 3 : 2)) {
++                            int last_coeff_abs_level_remaining = coeff_abs_level_remaining_decode(lc, c_rice_param);
++                            trans_coeff_level += last_coeff_abs_level_remaining;
++                            if (trans_coeff_level > (3 << c_rice_param))
++                                c_rice_param = sps->persistent_rice_adaptation_enabled ? c_rice_param + 1 : FFMIN(c_rice_param + 1, 4);
++                            if (sps->persistent_rice_adaptation_enabled && !rice_init) {
++                                int c_rice_p_init = lc->stat_coeff[sb_type] / 4;
++                                if (last_coeff_abs_level_remaining >= (3 << c_rice_p_init))
++                                    lc->stat_coeff[sb_type]++;
++                                else if (2 * last_coeff_abs_level_remaining < (1 << c_rice_p_init))
++                                    if (lc->stat_coeff[sb_type] > 0)
++                                        lc->stat_coeff[sb_type]--;
++                                rice_init = 1;
++                            }
++                        }
++                    } else {
++                        int last_coeff_abs_level_remaining = coeff_abs_level_remaining_decode(lc, c_rice_param);
++                        trans_coeff_level = 1 + last_coeff_abs_level_remaining;
++                        if (trans_coeff_level > (3 << c_rice_param))
++                            c_rice_param = sps->persistent_rice_adaptation_enabled ? c_rice_param + 1 : FFMIN(c_rice_param + 1, 4);
++                        if (sps->persistent_rice_adaptation_enabled && !rice_init) {
++                            int c_rice_p_init = lc->stat_coeff[sb_type] / 4;
++                            if (last_coeff_abs_level_remaining >= (3 << c_rice_p_init))
++                                lc->stat_coeff[sb_type]++;
++                            else if (2 * last_coeff_abs_level_remaining < (1 << c_rice_p_init))
++                                if (lc->stat_coeff[sb_type] > 0)
++                                    lc->stat_coeff[sb_type]--;
++                            rice_init = 1;
++                        }
++                    }
++                    if (pps->sign_data_hiding_flag && sign_hidden)
++                        sum_abs += trans_coeff_level;
++                }
++            } else {
+             for (m = 0; m < n_end; m++) {
+                 n = significant_coeff_flag_idx[m];
+                 GET_COORD(offset, n);
+@@ -1400,6 +1458,20 @@
                          rice_init = 1;
                      }
                  }
-+
-+                if (mv_only) {
-+                    /* Skip sign application, dequant, and coefficient storage */
-+                    if (pps->sign_data_hiding_flag && sign_hidden)
-+                        sum_abs += trans_coeff_level;
-+                    coeff_sign_flag <<= 1;
-+                    continue;
-+                }
-+
++////
++//                 if (mv_only && !pps->sign_data_hiding_flag) {
++//                     coeff_sign_flag <<= 1;
++//                     continue;
++//                 }
++                
++//                 if (mv_only) {
++//                     /* Skip sign application, dequant, and coefficient storage */
++//                     if (pps->sign_data_hiding_flag && sign_hidden)
++//                         sum_abs += trans_coeff_level;
++//                     coeff_sign_flag <<= 1;
++//                     continue;
++//                 }
++// ////
                  if (pps->sign_data_hiding_flag && sign_hidden) {
                      sum_abs += trans_coeff_level;
                      if (n == first_nz_pos_in_cg && (sum_abs&1))
-@@ -1436,6 +1462,9 @@
+@@ -1433,9 +1505,13 @@
+                 }
+                 coeffs[y_c * trafo_size + x_c] = trans_coeff_level;
+             }
++            }
          }
      }
  
@@ -1620,7 +1721,7 @@ diff -u -I '/tmp/ffconf\.' -x .git -x config.h -x config_components.h -x '*tests
          if (explicit_rdpcm_flag || (sps->implicit_rdpcm_enabled &&
                                      (pred_mode_intra == 10 || pred_mode_intra == 26))) {
 diff -u -I '/tmp/ffconf\.' -x .git -x config.h -x config_components.h -x '*tests' -x '*.pc' -x ffmpeg_g -x ffprobe_g -x ffmpeg -x ffprobe -x .version -x '*.so' -x '*.so.*' -x '*.ver.*' -x '*.a' -x '*.o' -x '*.d' -x '*.S' -x '*.asm' -x doc -x ffversion.h -r a/libavcodec/hevc/filter.c b/libavcodec/hevc/filter.c
---- a/libavcodec/hevc/filter.c	2026-03-31 09:28:41.947074019 +0200
+--- a/libavcodec/hevc/filter.c	2026-04-17 17:36:27.954631737 +0200
 +++ b/libavcodec/hevc/filter.c	2026-02-23 10:02:39.218873630 +0100
 @@ -876,6 +876,13 @@
      const HEVCSPS   *const sps = pps->sps;
@@ -1637,8 +1738,8 @@ diff -u -I '/tmp/ffconf\.' -x .git -x config.h -x config_components.h -x '*tests
      if (s->avctx->skip_loop_filter >= AVDISCARD_ALL ||
          (s->avctx->skip_loop_filter >= AVDISCARD_NONKEY && !IS_IDR(s)) ||
 diff -u -I '/tmp/ffconf\.' -x .git -x config.h -x config_components.h -x '*tests' -x '*.pc' -x ffmpeg_g -x ffprobe_g -x ffmpeg -x ffprobe -x .version -x '*.so' -x '*.so.*' -x '*.ver.*' -x '*.a' -x '*.o' -x '*.d' -x '*.S' -x '*.asm' -x doc -x ffversion.h -r a/libavcodec/hevc/hevcdec.c b/libavcodec/hevc/hevcdec.c
---- a/libavcodec/hevc/hevcdec.c	2026-03-31 10:59:39.794189053 +0200
-+++ b/libavcodec/hevc/hevcdec.c	2026-03-31 11:32:35.126119320 +0200
+--- a/libavcodec/hevc/hevcdec.c	2026-04-17 17:36:27.954631737 +0200
++++ b/libavcodec/hevc/hevcdec.c	2026-04-17 09:30:59.422793263 +0200
 @@ -33,6 +33,7 @@
  #include "libavutil/internal.h"
  #include "libavutil/md5.h"
@@ -1647,7 +1748,67 @@ diff -u -I '/tmp/ffconf\.' -x .git -x config.h -x config_components.h -x '*tests
  #include "libavutil/opt.h"
  #include "libavutil/pixdesc.h"
  #include "libavutil/stereo3d.h"
-@@ -1309,7 +1310,7 @@
+@@ -1227,6 +1228,51 @@
+         }
+     }
+ 
++    if (s->motion_vectors_only) {
++        /* MV-only fast path: parse CABAC bins to keep arithmetic decoder
++         * synchronized, but skip all storage and offset inference. */
++        int mv_sao_type_chroma = SAO_NOT_APPLIED;
++
++        for (c_idx = 0; c_idx < (sps->chroma_format_idc ? 3 : 1); c_idx++) {
++            if (!s->sh.slice_sample_adaptive_offset_flag[c_idx])
++                continue;
++
++            /* When merge flags are set, all params are copied from
++             * neighbors — no CABAC bins to consume. */
++            if (sao_merge_left_flag || sao_merge_up_flag)
++                continue;
++
++            int type_idx;
++            if (c_idx == 2) {
++                /* c_idx==2: type_idx and eo_class are copied from c_idx==1,
++                 * but offset_abs, offset_sign, and band_position are still
++                 * decoded from CABAC. */
++                type_idx = mv_sao_type_chroma;
++            } else {
++                type_idx = ff_hevc_sao_type_idx_decode(lc);
++                if (c_idx == 1)
++                    mv_sao_type_chroma = type_idx;
++            }
++
++            if (type_idx == SAO_NOT_APPLIED)
++                continue;
++
++            int offset_abs[4];
++            for (i = 0; i < 4; i++)
++                offset_abs[i] = ff_hevc_sao_offset_abs_decode(lc, sps->bit_depth);
++
++            if (type_idx == SAO_BAND) {
++                for (i = 0; i < 4; i++)
++                    if (offset_abs[i])
++                        ff_hevc_sao_offset_sign_decode(lc);
++                ff_hevc_sao_band_position_decode(lc);
++            } else if (c_idx != 2) {
++                /* eo_class is only decoded for c_idx 0 and 1;
++                 * c_idx==2 copies eo_class from c_idx==1. */
++                ff_hevc_sao_eo_class_decode(lc);
++            }
++        }
++    } else {
+     for (c_idx = 0; c_idx < (sps->chroma_format_idc ? 3 : 1); c_idx++) {
+         int log2_sao_offset_scale = c_idx == 0 ? pps->log2_sao_offset_scale_luma :
+                                                  pps->log2_sao_offset_scale_chroma;
+@@ -1276,6 +1322,7 @@
+             sao->offset_val[c_idx][i + 1] *= 1 << log2_sao_offset_scale;
+         }
+     }
++    }
+ }
+ 
+ #undef SET_SAO
+@@ -1309,7 +1356,7 @@
      const int log2_trafo_size_c = log2_trafo_size - sps->hshift[1];
      int i;
  
@@ -1656,7 +1817,7 @@ diff -u -I '/tmp/ffconf\.' -x .git -x config.h -x config_components.h -x '*tests
          int trafo_size = 1 << log2_trafo_size;
          ff_hevc_set_neighbour_available(lc, x0, y0, trafo_size, trafo_size, sps->log2_ctb_size);
  
-@@ -1397,7 +1398,7 @@
+@@ -1397,7 +1444,7 @@
                  hls_cross_component_pred(lc, 0);
              }
              for (i = 0; i < (sps->chroma_format_idc == 2 ? 2 : 1); i++) {
@@ -1665,7 +1826,7 @@ diff -u -I '/tmp/ffconf\.' -x .git -x config.h -x config_components.h -x '*tests
                      ff_hevc_set_neighbour_available(lc, x0, y0 + (i << log2_trafo_size_c),
                                                      trafo_size_h, trafo_size_v, sps->log2_ctb_size);
                      s->hpc.intra_pred[log2_trafo_size_c - 2](lc, pps, x0, y0 + (i << log2_trafo_size_c), 1);
-@@ -1405,7 +1406,7 @@
+@@ -1405,7 +1452,7 @@
                  if (cbf_cb[i])
                      ff_hevc_hls_residual_coding(lc, pps, x0, y0 + (i << log2_trafo_size_c),
                                                  log2_trafo_size_c, scan_idx_c, 1);
@@ -1674,7 +1835,7 @@ diff -u -I '/tmp/ffconf\.' -x .git -x config.h -x config_components.h -x '*tests
                      if (lc->tu.cross_pf) {
                          ptrdiff_t stride = s->cur_frame->f->linesize[1];
                          int hshift = sps->hshift[1];
-@@ -1427,7 +1428,7 @@
+@@ -1427,7 +1474,7 @@
                  hls_cross_component_pred(lc, 1);
              }
              for (i = 0; i < (sps->chroma_format_idc == 2 ? 2 : 1); i++) {
@@ -1683,7 +1844,7 @@ diff -u -I '/tmp/ffconf\.' -x .git -x config.h -x config_components.h -x '*tests
                      ff_hevc_set_neighbour_available(lc, x0, y0 + (i << log2_trafo_size_c),
                                                      trafo_size_h, trafo_size_v, sps->log2_ctb_size);
                      s->hpc.intra_pred[log2_trafo_size_c - 2](lc, pps, x0, y0 + (i << log2_trafo_size_c), 2);
-@@ -1435,7 +1436,7 @@
+@@ -1435,7 +1482,7 @@
                  if (cbf_cr[i])
                      ff_hevc_hls_residual_coding(lc, pps, x0, y0 + (i << log2_trafo_size_c),
                                                  log2_trafo_size_c, scan_idx_c, 2);
@@ -1692,7 +1853,7 @@ diff -u -I '/tmp/ffconf\.' -x .git -x config.h -x config_components.h -x '*tests
                      if (lc->tu.cross_pf) {
                          ptrdiff_t stride = s->cur_frame->f->linesize[2];
                          int hshift = sps->hshift[2];
-@@ -1456,7 +1457,7 @@
+@@ -1456,7 +1503,7 @@
              int trafo_size_h = 1 << (log2_trafo_size + 1);
              int trafo_size_v = 1 << (log2_trafo_size + sps->vshift[1]);
              for (i = 0; i < (sps->chroma_format_idc == 2 ? 2 : 1); i++) {
@@ -1701,7 +1862,7 @@ diff -u -I '/tmp/ffconf\.' -x .git -x config.h -x config_components.h -x '*tests
                      ff_hevc_set_neighbour_available(lc, xBase, yBase + (i << log2_trafo_size),
                                                      trafo_size_h, trafo_size_v, sps->log2_ctb_size);
                      s->hpc.intra_pred[log2_trafo_size - 2](lc, pps, xBase, yBase + (i << log2_trafo_size), 1);
-@@ -1466,7 +1467,7 @@
+@@ -1466,7 +1513,7 @@
                                                  log2_trafo_size, scan_idx_c, 1);
              }
              for (i = 0; i < (sps->chroma_format_idc == 2 ? 2 : 1); i++) {
@@ -1710,7 +1871,7 @@ diff -u -I '/tmp/ffconf\.' -x .git -x config.h -x config_components.h -x '*tests
                      ff_hevc_set_neighbour_available(lc, xBase, yBase + (i << log2_trafo_size),
                                                  trafo_size_h, trafo_size_v, sps->log2_ctb_size);
                      s->hpc.intra_pred[log2_trafo_size - 2](lc, pps, xBase, yBase + (i << log2_trafo_size), 2);
-@@ -1476,7 +1477,7 @@
+@@ -1476,7 +1523,7 @@
                                                  log2_trafo_size, scan_idx_c, 2);
              }
          }
@@ -1719,7 +1880,7 @@ diff -u -I '/tmp/ffconf\.' -x .git -x config.h -x config_components.h -x '*tests
          if (log2_trafo_size > 2 || sps->chroma_format_idc == 3) {
              int trafo_size_h = 1 << (log2_trafo_size_c + sps->hshift[1]);
              int trafo_size_v = 1 << (log2_trafo_size_c + sps->vshift[1]);
-@@ -1633,21 +1634,24 @@
+@@ -1633,21 +1680,24 @@
                                   blk_idx, cbf_luma, cbf_cb, cbf_cr);
          if (ret < 0)
              return ret;
@@ -1759,7 +1920,7 @@ diff -u -I '/tmp/ffconf\.' -x .git -x config.h -x config_components.h -x '*tests
          }
      }
      return 0;
-@@ -1658,26 +1662,30 @@
+@@ -1658,26 +1708,30 @@
  {
      const HEVCContext *const s = lc->parent;
      const HEVCSPS   *const sps = pps->sps;
@@ -1800,7 +1961,7 @@ diff -u -I '/tmp/ffconf\.' -x .git -x config.h -x config_components.h -x '*tests
      if (ret < 0)
          return ret;
  
-@@ -2109,10 +2117,6 @@
+@@ -2109,10 +2163,6 @@
      MvField *tab_mvf = s->cur_frame->tab_mvf;
      const RefPicList *refPicList = s->cur_frame->refPicList;
      const HEVCFrame *ref0 = NULL, *ref1 = NULL;
@@ -1811,7 +1972,7 @@ diff -u -I '/tmp/ffconf\.' -x .git -x config.h -x config_components.h -x '*tests
      int log2_min_cb_size = sps->log2_min_cb_size;
      int min_cb_width     = sps->min_cb_width;
      int x_cb             = x0 >> log2_min_cb_size;
-@@ -2145,6 +2149,14 @@
+@@ -2145,6 +2195,14 @@
          for (i = 0; i < nPbW >> sps->log2_min_pu_size; i++)
              tab_mvf[(y_pu + j) * min_pu_width + x_pu + i] = current_mv;
  
@@ -1826,7 +1987,15 @@ diff -u -I '/tmp/ffconf\.' -x .git -x config.h -x config_components.h -x '*tests
      if (current_mv.pred_flag & PF_L0) {
          ref0 = refPicList[0].ref[current_mv.ref_idx[0]];
          if (!ref0 || !ref0->f)
-@@ -2472,7 +2484,7 @@
+@@ -2407,6 +2465,7 @@
+ 
+     if (size_in_pus == 0)
+         size_in_pus = 1;
++    // if (!s->motion_vectors_only)
+     for (j = 0; j < size_in_pus; j++)
+         memset(&l->tab_ipm[(y_pu + j) * min_pu_width + x_pu], INTRA_DC, size_in_pus);
+     if (lc->cu.pred_mode == MODE_INTRA)
+@@ -2472,7 +2531,7 @@
                              x0, y0, cb_size, cb_size, log2_cb_size, 0, idx);
          intra_prediction_unit_default_value(lc, l, sps, x0, y0, log2_cb_size);
  
@@ -1835,7 +2004,7 @@ diff -u -I '/tmp/ffconf\.' -x .git -x config.h -x config_components.h -x '*tests
              ff_hevc_deblocking_boundary_strengths(lc, l, pps, x0, y0, log2_cb_size);
      } else {
          int pcm_flag = 0;
-@@ -2577,7 +2589,7 @@
+@@ -2577,7 +2636,7 @@
                  if (ret < 0)
                      return ret;
              } else {
@@ -1844,7 +2013,7 @@ diff -u -I '/tmp/ffconf\.' -x .git -x config.h -x config_components.h -x '*tests
                      ff_hevc_deblocking_boundary_strengths(lc, l, pps, x0, y0, log2_cb_size);
              }
          }
-@@ -2777,9 +2789,11 @@
+@@ -2777,9 +2836,11 @@
          hls_sao_param(lc, l, pps, sps,
                        x_ctb >> sps->log2_ctb_size, y_ctb >> sps->log2_ctb_size);
  
@@ -1859,7 +2028,7 @@ diff -u -I '/tmp/ffconf\.' -x .git -x config.h -x config_components.h -x '*tests
  
          more_data = hls_coding_quadtree(lc, l, pps, sps, x_ctb, y_ctb, sps->log2_ctb_size, 0);
          if (more_data < 0) {
-@@ -2790,7 +2804,8 @@
+@@ -2790,7 +2851,8 @@
  
          ctb_addr_ts++;
          ff_hevc_save_states(lc, pps, ctb_addr_ts);
@@ -1869,7 +2038,7 @@ diff -u -I '/tmp/ffconf\.' -x .git -x config.h -x config_components.h -x '*tests
      }
  
      if (x_ctb + ctb_size >= sps->width &&
-@@ -2848,9 +2863,11 @@
+@@ -2848,9 +2910,11 @@
          hls_sao_param(lc, l, pps, sps,
                        x_ctb >> sps->log2_ctb_size, y_ctb >> sps->log2_ctb_size);
  
@@ -1884,7 +2053,7 @@ diff -u -I '/tmp/ffconf\.' -x .git -x config.h -x config_components.h -x '*tests
  
          more_data = hls_coding_quadtree(lc, l, pps, sps, x_ctb, y_ctb, sps->log2_ctb_size, 0);
  
-@@ -2863,7 +2880,8 @@
+@@ -2863,7 +2927,8 @@
  
          ff_hevc_save_states(lc, pps, ctb_addr_ts);
          ff_thread_progress_report(&s->wpp_progress[ctb_row], ++progress);
@@ -1894,7 +2063,7 @@ diff -u -I '/tmp/ffconf\.' -x .git -x config.h -x config_components.h -x '*tests
  
          if (!more_data && (x_ctb+ctb_size) < sps->width && ctb_row != s->sh.num_entry_point_offsets) {
              /* Casting const away here is safe, because it is an atomic operation. */
-@@ -3345,7 +3363,8 @@
+@@ -3345,7 +3410,8 @@
      else
          s->cur_frame->f->flags &= ~AV_FRAME_FLAG_KEY;
  
@@ -1904,7 +2073,7 @@ diff -u -I '/tmp/ffconf\.' -x .git -x config.h -x config_components.h -x '*tests
                                 s->sei.common.film_grain_characteristics->present) ||
                                s->sei.common.aom_film_grain.enable) &&
          !(s->avctx->export_side_data & AV_CODEC_EXPORT_DATA_FILM_GRAIN) &&
-@@ -3481,14 +3500,157 @@
+@@ -3481,14 +3547,185 @@
             s->poc, msg_buf);
  
      return err;
@@ -1912,13 +2081,7 @@ diff -u -I '/tmp/ffconf\.' -x .git -x config.h -x config_components.h -x '*tests
 +
 +static av_always_inline int mvfield_match(const MvField *a, const MvField *b)
 +{
-+    return a->pred_flag   == b->pred_flag   &&
-+           a->ref_idx[0]  == b->ref_idx[0]  &&
-+           a->ref_idx[1]  == b->ref_idx[1]  &&
-+           a->mv[0].x     == b->mv[0].x     &&
-+           a->mv[0].y     == b->mv[0].y     &&
-+           a->mv[1].x     == b->mv[1].x     &&
-+           a->mv[1].y     == b->mv[1].y;
++    return !memcmp(a, b, offsetof(MvField, pred_flag) + 1);
 +}
 +
 +int ff_hevc_export_motion_vectors(HEVCContext *s, HEVCFrame *frame)
@@ -1929,14 +2092,16 @@ diff -u -I '/tmp/ffconf\.' -x .git -x config.h -x config_components.h -x '*tests
 +    const int min_pu_width  = sps->min_pu_width;
 +    const int min_pu_height = sps->min_pu_height;
 +    const MvField *tab_mvf  = frame->tab_mvf;
++    const int compact       = s->motion_vectors_only;
 +
 +    const int max_pu_w = 255 / min_pu_size;
 +    const int max_pu_h = 255 / min_pu_size;
-+    
++
 +    AVFrameSideData *sd;
 +    int num_mvs = 0;
 +    int alloc   = min_pu_width * min_pu_height * 2;
-+    AVMotionVector *mvs = NULL;
++    AVMotionVector        *mvs_full    = NULL;
++    AVMotionVectorCompact *mvs_compact = NULL;
 +
 +    if (!tab_mvf)
 +        return 0;
@@ -1945,12 +2110,15 @@ diff -u -I '/tmp/ffconf\.' -x .git -x config.h -x config_components.h -x '*tests
 +    if (!visited)
 +        return AVERROR(ENOMEM);
 +
-+    mvs = av_malloc_array(alloc, sizeof(*mvs));
-+    if (!mvs) {
++    if (compact)
++        mvs_compact = av_malloc_array(alloc, sizeof(*mvs_compact));
++    else
++        mvs_full    = av_malloc_array(alloc, sizeof(*mvs_full));
++    if (!mvs_full && !mvs_compact) {
 +        av_free(visited);
 +        return AVERROR(ENOMEM);
-     }
- 
++    }
++
 +    for (int y = 0; y < min_pu_height; y++) {
 +        for (int x = 0; x < min_pu_width; x++) {
 +            if (visited[y * min_pu_width + x])
@@ -2002,46 +2170,75 @@ diff -u -I '/tmp/ffconf\.' -x .git -x config.h -x config_components.h -x '*tests
 +                    continue;
 +
 +                av_assert0(num_mvs < alloc);
-+                AVMotionVector *out = &mvs[num_mvs++];
-+                out->w        = (uint8_t)pixel_w;
-+                out->h        = (uint8_t)pixel_h;
-+                out->src_x    = pixel_x + pixel_w / 2;
-+                out->src_y    = pixel_y + pixel_h / 2;
-+                out->dst_x    = out->src_x + (mvf->mv[dir].x >> 2);
-+                out->dst_y    = out->src_y + (mvf->mv[dir].y >> 2);
-+                /* Raw quarter-pel MV components */
-+                out->motion_x = mvf->mv[dir].x;
-+                out->motion_y = mvf->mv[dir].y;
-+                out->motion_scale = 4; /* HEVC uses quarter-pel precision */
-+                out->flags    = 0;
 +
-+                /*
-+                 * source: negative = L0 (past/backward), positive = L1 (future/forward)
-+                 * Use the signed reference index convention matching H.264 export.
-+                 */
-+                out->source = (dir == 0) ? -(mvf->ref_idx[dir] + 1)
-+                                         :  (mvf->ref_idx[dir] + 1);
++                const int src_x = pixel_x + pixel_w / 2;
++                const int src_y = pixel_y + pixel_h / 2;
++
++                if (compact) {
++                    AVMotionVectorCompact *out = &mvs_compact[num_mvs++];
++                    out->src_x        = src_x;
++                    out->src_y        = src_y;
++                    out->dst_x        = src_x + (mvf->mv[dir].x >> 2);
++                    out->dst_y        = src_y + (mvf->mv[dir].y >> 2);
++                    out->source       = (dir == 0) ? -(mvf->ref_idx[dir] + 1)
++                                                   :  (mvf->ref_idx[dir] + 1);
++                } else {
++                    const int dst_x = src_x + (mvf->mv[dir].x >> 2);
++                    const int dst_y = src_y + (mvf->mv[dir].y >> 2);
++                    AVMotionVector *out = &mvs_full[num_mvs++];
++                    out->w        = (uint8_t)pixel_w;
++                    out->h        = (uint8_t)pixel_h;
++                    out->src_x    = src_x;
++                    out->src_y    = src_y;
++                    out->dst_x    = dst_x;
++                    out->dst_y    = dst_y;
++                    /* Raw quarter-pel MV components */
++                    out->motion_x = mvf->mv[dir].x;
++                    out->motion_y = mvf->mv[dir].y;
++                    out->motion_scale = 4; /* HEVC uses quarter-pel precision */
++                    out->flags    = 0;
++
++                    /*
++                     * source: negative = L0 (past/backward), positive = L1 (future/forward)
++                     * Use the signed reference index convention matching H.264 export.
++                     */
++                    out->source = (dir == 0) ? -(mvf->ref_idx[dir] + 1)
++                                             :  (mvf->ref_idx[dir] + 1);
++                }
 +            }
 +        }
 +    }
 +    av_free(visited);
 +
 +    if (!num_mvs) {
-+        av_free(mvs);
++        av_free(mvs_full);
++        av_free(mvs_compact);
 +        return 0;
+     }
+ 
++    if (compact) {
++        sd = av_frame_new_side_data(frame->f, AV_FRAME_DATA_MOTION_VECTORS_COMPACT,
++                                    num_mvs * sizeof(AVMotionVectorCompact));
++        if (!sd) {
++            av_free(mvs_compact);
++            return AVERROR(ENOMEM);
++        }
++        memcpy(sd->data, mvs_compact, num_mvs * sizeof(AVMotionVectorCompact));
++        av_free(mvs_compact);
++    } else {
++        sd = av_frame_new_side_data(frame->f, AV_FRAME_DATA_MOTION_VECTORS,
++                                    num_mvs * sizeof(AVMotionVector));
++        if (!sd) {
++            av_free(mvs_full);
++            return AVERROR(ENOMEM);
++        }
++        memcpy(sd->data, mvs_full, num_mvs * sizeof(AVMotionVector));
++        av_free(mvs_full);
 +    }
-+
-+    sd = av_frame_new_side_data(frame->f, AV_FRAME_DATA_MOTION_VECTORS,
-+                                num_mvs * sizeof(AVMotionVector));
-+    if (!sd) {
-+        av_free(mvs);
-+        return AVERROR(ENOMEM);
-+    }
-+    memcpy(sd->data, mvs, num_mvs * sizeof(AVMotionVector));
-+    av_free(mvs);
 +
 +    av_log(s->avctx, AV_LOG_DEBUG,
-+           "MV export: POC=%d, merged MVs=%d\n", s->poc, num_mvs);
++           "MV export: POC=%d, merged MVs=%d%s\n",
++           s->poc, num_mvs, compact ? " (compact)" : "");
 +
 +    return 0;
 +}
@@ -2062,7 +2259,7 @@ diff -u -I '/tmp/ffconf\.' -x .git -x config.h -x config_components.h -x '*tests
      if (out->needs_fg) {
          av_assert0(out->frame_grain->buf[0]);
          fgp = av_film_grain_params_select(out->f);
-@@ -3834,6 +3996,7 @@
+@@ -3834,6 +4071,7 @@
      AVCodecInternal *avci = avctx->internal;
      AVPacket       *avpkt = avci->in_pkt;
  
@@ -2070,7 +2267,7 @@ diff -u -I '/tmp/ffconf\.' -x .git -x config.h -x config_components.h -x '*tests
      int ret;
      uint8_t *sd;
      size_t sd_size;
-@@ -4209,6 +4372,8 @@
+@@ -4209,6 +4447,8 @@
          AV_OPT_TYPE_BOOL, {.i64 = 0}, 0, 1, PAR },
      { "strict-displaywin", "strictly apply default display window size", OFFSET(apply_defdispwin),
          AV_OPT_TYPE_BOOL, {.i64 = 0}, 0, 1, PAR },
@@ -2080,7 +2277,7 @@ diff -u -I '/tmp/ffconf\.' -x .git -x config.h -x config_components.h -x '*tests
          .offset = OFFSET(view_ids), .type = AV_OPT_TYPE_INT | AV_OPT_TYPE_FLAG_ARRAY,
          .min = -1, .max = INT_MAX, .flags = PAR },
 diff -u -I '/tmp/ffconf\.' -x .git -x config.h -x config_components.h -x '*tests' -x '*.pc' -x ffmpeg_g -x ffprobe_g -x ffmpeg -x ffprobe -x .version -x '*.so' -x '*.so.*' -x '*.ver.*' -x '*.a' -x '*.o' -x '*.d' -x '*.S' -x '*.asm' -x doc -x ffversion.h -r a/libavcodec/hevc/hevcdec.h b/libavcodec/hevc/hevcdec.h
---- a/libavcodec/hevc/hevcdec.h	2026-03-31 09:28:41.947074019 +0200
+--- a/libavcodec/hevc/hevcdec.h	2026-04-17 17:36:27.954631737 +0200
 +++ b/libavcodec/hevc/hevcdec.h	2026-02-11 18:33:43.884059915 +0100
 @@ -563,6 +563,7 @@
      int is_nalff;           ///< this flag is != 0 if bitstream is encapsulated
@@ -2099,9 +2296,33 @@ diff -u -I '/tmp/ffconf\.' -x .git -x config.h -x config_components.h -x '*tests
  /**
   * Get the number of candidate references for the current frame.
 diff -u -I '/tmp/ffconf\.' -x .git -x config.h -x config_components.h -x '*tests' -x '*.pc' -x ffmpeg_g -x ffprobe_g -x ffmpeg -x ffprobe -x .version -x '*.so' -x '*.so.*' -x '*.ver.*' -x '*.a' -x '*.o' -x '*.d' -x '*.S' -x '*.asm' -x doc -x ffversion.h -r a/libavcodec/hevc/refs.c b/libavcodec/hevc/refs.c
---- a/libavcodec/hevc/refs.c	2026-03-31 10:58:49.031892416 +0200
-+++ b/libavcodec/hevc/refs.c	2026-03-31 11:32:58.450319711 +0200
-@@ -305,6 +305,11 @@
+--- a/libavcodec/hevc/refs.c	2026-04-17 17:36:27.954631737 +0200
++++ b/libavcodec/hevc/refs.c	2026-04-01 21:48:53.209719848 +0200
+@@ -158,7 +158,22 @@
+             }
+         }
+ 
+-        ret = ff_thread_get_buffer(s->avctx, frame->f, AV_GET_BUFFER_FLAG_REF);
++        if (s->motion_vectors_only) {
++            // Allocate minimal pixel buffers — MV extraction never writes pixels.
++            // CTB-aligned minimum (64x64) avoids alignment asserts.
++            int orig_w = s->avctx->width;
++            int orig_h = s->avctx->height;
++            s->avctx->width  = 64;
++            s->avctx->height = 64;
++            frame->f->width  = 64;
++            frame->f->height = 64;
++            frame->f->format = AV_PIX_FMT_YUV420P;
++            ret = ff_thread_get_buffer(s->avctx, frame->f, AV_GET_BUFFER_FLAG_REF);
++            s->avctx->width  = orig_w;
++            s->avctx->height = orig_h;
++        } else {
++            ret = ff_thread_get_buffer(s->avctx, frame->f, AV_GET_BUFFER_FLAG_REF);
++        }
+         if (ret < 0)
+             goto fail;
+ 
+@@ -305,6 +320,11 @@
              int output = !discard && (layers_active_output & (1 << min_layer));
  
              if (output) {
@@ -2114,68 +2335,53 @@ diff -u -I '/tmp/ffconf\.' -x .git -x config.h -x config_components.h -x '*tests
                      f->flags |= AV_FRAME_FLAG_CORRUPT;
                  f->pkt_dts = s->pkt_dts;
 diff -u -I '/tmp/ffconf\.' -x .git -x config.h -x config_components.h -x '*tests' -x '*.pc' -x ffmpeg_g -x ffprobe_g -x ffmpeg -x ffprobe -x .version -x '*.so' -x '*.so.*' -x '*.ver.*' -x '*.a' -x '*.o' -x '*.d' -x '*.S' -x '*.asm' -x doc -x ffversion.h -r a/libavcodec/mpegutils.c b/libavcodec/mpegutils.c
---- a/libavcodec/mpegutils.c	2026-03-31 09:28:42.048343917 +0200
-+++ b/libavcodec/mpegutils.c	2026-02-18 15:25:12.221073483 +0100
-@@ -247,6 +247,158 @@
+--- a/libavcodec/mpegutils.c	2026-04-17 17:36:28.018411430 +0200
++++ b/libavcodec/mpegutils.c	2026-04-17 09:16:13.074940674 +0200
+@@ -32,7 +32,7 @@
+ #include "avcodec.h"
+ #include "mpegutils.h"
+ 
+-static int add_mb(AVMotionVector *mb, uint32_t mb_type,
++static av_always_inline int add_mb(AVMotionVector *mb, uint32_t mb_type,
+                   int dst_x, int dst_y,
+                   int motion_x, int motion_y, int motion_scale,
+                   int direction)
+@@ -51,6 +51,19 @@
+     return 1;
+ }
+ 
++static av_always_inline int add_mb_compact(AVMotionVectorCompact *mb,
++                  int dst_x, int dst_y,
++                  int motion_x, int motion_y, int motion_scale,
++                  int direction)
++{
++    mb->src_x   = dst_x + motion_x / motion_scale;
++    mb->src_y   = dst_y + motion_y / motion_scale;
++    mb->dst_x   = dst_x;
++    mb->dst_y   = dst_y;
++    mb->source  = direction ? 1 : -1;
++    return 1;
++}
++
+ void ff_draw_horiz_band(AVCodecContext *avctx,
+                         const AVFrame *cur, const AVFrame *last,
+                         int y, int h, int picture_structure,
+@@ -247,7 +260,6 @@
      if (avctx->hwaccel || !mbtype_table)
          return;
  
-+    if (avctx->debug & (FF_DEBUG_QP | FF_DEBUG_MB_TYPE)) {
-+        int x,y;
-+        AVBPrint buf;
-+        int n;
-+        int margin_left;
-+        int x_step;
-+
-+        av_log(avctx, AV_LOG_DEBUG, "New frame, type: %c\n",
-+               av_get_picture_type_char(pict->pict_type));
-+
-+        margin_left = 2;
-+        n = mb_width << 4;
-+        while ((n /= 10))
-+            margin_left++;
-+
-+        av_bprint_init(&buf, 1, AV_BPRINT_SIZE_UNLIMITED);
-+        av_bprint_chars(&buf, ' ', margin_left);
-+
-+        n = 0;
-+        if (avctx->debug & FF_DEBUG_QP)
-+            n += 2;
-+        if (avctx->debug & FF_DEBUG_MB_TYPE)
-+            n += 3;
-+        x_step = (mb_width * 16 > 999) ? 8 : 4;
-+        for (x = 0; x < mb_width; x += x_step)
-+            av_bprintf(&buf, "%-*d", n * x_step, x << 4);
-+
-+        av_log(avctx, AV_LOG_DEBUG, "%s\n", buf.str);
-+
-+        for (y = 0; y < mb_height; y++) {
-+            av_bprint_clear(&buf);
-+            for (x = 0; x < mb_width; x++) {
-+                if (x == 0)
-+                    av_bprintf(&buf, "%*d ", margin_left - 1, y << 4);
-+                if (avctx->debug & FF_DEBUG_QP) {
-+                    av_bprintf(&buf, "%2d", qscale_table[x + y * mb_stride]);
-+                }
-+                if (avctx->debug & FF_DEBUG_MB_TYPE) {
-+                    int mb_type = mbtype_table[x + y * mb_stride];
-+
-+                    av_bprintf(&buf, "%c%c%c",
-+                           get_type_mv_char(mb_type, mb_type_mv_flags),
-+                           get_segmentation_char(mb_type),
-+                           get_interlacement_char(mb_type));
-+                }
-+            }
-+
-+            av_log(avctx, AV_LOG_DEBUG, "%s\n", buf.str);
-+        }
-+        av_bprint_finalize(&buf, NULL);
-+    }
-+}
+-
+     if (avctx->debug & (FF_DEBUG_QP | FF_DEBUG_MB_TYPE)) {
+         int x,y;
+         AVBPrint buf;
+@@ -300,3 +312,118 @@
+         av_bprint_finalize(&buf, NULL);
+     }
+ }
 +
 +void ff_print_debug_info2_optimized(AVCodecContext *avctx, AVFrame *pict,
 +                          const uint32_t *mbtype_table,
-+                          const int8_t *qscale_table, int16_t (*const motion_val[2])[2],
++                          int16_t (*const motion_val[2])[2],
 +                          int mb_width, int mb_height, int mb_stride, int quarter_sample)
 +{
 +    const int is_h264 = avctx->codec_id == AV_CODEC_ID_H264;
@@ -2189,14 +2395,35 @@ diff -u -I '/tmp/ffconf\.' -x .git -x config.h -x config_components.h -x '*tests
 +        const int mv_stride      = (mb_width << mv_sample_log2) + !is_h264;
 +        int mb_x, mb_y, mbcount = 0;
 +        const int max_mvs        = mb_width * mb_height * 2 * 4;
++        const int compact        = avctx->motion_vectors_only;
 +
 +        // --- Optimization 1: allocate directly into side data, skip temp buffer + memcpy ---
-+        AVFrameSideData *sd = av_frame_new_side_data(pict, AV_FRAME_DATA_MOTION_VECTORS,
-+                                    max_mvs * sizeof(AVMotionVector));
-+        if (!sd)
-+            goto debug_section;
++        // Compact path uses AVMotionVectorCompact (8 B) instead of AVMotionVector (~40 B)
++        // when the decoder is in motion_vectors_only mode — the consumer has already
++        // opted out of pixel reconstruction, so the extra fields are dead weight.
++        const enum AVFrameSideDataType sd_type = compact
++            ? AV_FRAME_DATA_MOTION_VECTORS_COMPACT
++            : AV_FRAME_DATA_MOTION_VECTORS;
++        const size_t entry_size = compact
++            ? sizeof(AVMotionVectorCompact)
++            : sizeof(AVMotionVector);
 +
-+        AVMotionVector *mvs = (AVMotionVector *)sd->data;
++        AVFrameSideData *sd = av_frame_new_side_data(pict, sd_type,
++                                    max_mvs * entry_size);
++        if (!sd)
++            return;
++
++        AVMotionVector        *mvs_full    = compact ? NULL : (AVMotionVector *)sd->data;
++        AVMotionVectorCompact *mvs_compact = compact ? (AVMotionVectorCompact *)sd->data : NULL;
++
++#define ADD_MB(sx_, sy_, mx_, my_) do {                                              \
++    if (compact)                                                                     \
++        mbcount += add_mb_compact(mvs_compact + mbcount, (sx_), (sy_),               \
++                                  (mx_), (my_), scale, direction);                   \
++    else                                                                             \
++        mbcount += add_mb(mvs_full + mbcount, mb_type, (sx_), (sy_),                 \
++                          (mx_), (my_), scale, direction);                           \
++} while (0)
 +
 +        for (mb_y = 0; mb_y < mb_height; mb_y++) {
 +            for (mb_x = 0; mb_x < mb_width; mb_x++) {
@@ -2216,7 +2443,7 @@ diff -u -I '/tmp/ffconf\.' -x .git -x config.h -x config_components.h -x '*tests
 +                                      (mb_y * 2 + (i >> 1)) * mv_stride) << (mv_sample_log2 - 1);
 +                            int mx = motion_val[direction][xy][0];
 +                            int my = motion_val[direction][xy][1];
-+                            mbcount += add_mb(mvs + mbcount, mb_type, sx, sy, mx, my, scale, direction);
++                            ADD_MB(sx, sy, mx, my);
 +                        }
 +                    } else if (IS_16X8(mb_type)) {
 +                        for (i = 0; i < 2; i++) {
@@ -2229,7 +2456,7 @@ diff -u -I '/tmp/ffconf\.' -x .git -x config.h -x config_components.h -x '*tests
 +                            if (IS_INTERLACED(mb_type))
 +                                my *= 2;
 +
-+                            mbcount += add_mb(mvs + mbcount, mb_type, sx, sy, mx, my, scale, direction);
++                            ADD_MB(sx, sy, mx, my);
 +                        }
 +                    } else if (IS_8X16(mb_type)) {
 +                        for (i = 0; i < 2; i++) {
@@ -2242,7 +2469,7 @@ diff -u -I '/tmp/ffconf\.' -x .git -x config.h -x config_components.h -x '*tests
 +                            if (IS_INTERLACED(mb_type))
 +                                my *= 2;
 +
-+                            mbcount += add_mb(mvs + mbcount, mb_type, sx, sy, mx, my, scale, direction);
++                            ADD_MB(sx, sy, mx, my);
 +                        }
 +                    } else {
 +                          int sx = mb_x * 16 + 8;
@@ -2250,49 +2477,41 @@ diff -u -I '/tmp/ffconf\.' -x .git -x config.h -x config_components.h -x '*tests
 +                          int xy = (mb_x + mb_y * mv_stride) << mv_sample_log2;
 +                          int mx = motion_val[direction][xy][0];
 +                          int my = motion_val[direction][xy][1];
-+                          mbcount += add_mb(mvs + mbcount, mb_type, sx, sy, mx, my, scale, direction);
++                          ADD_MB(sx, sy, mx, my);
 +                    }
 +                }
 +            }
 +        }
++#undef ADD_MB
 +
 +        if (mbcount) {
 +            av_log(avctx, AV_LOG_DEBUG, "Adding %d MVs info to frame %"PRId64"\n", mbcount, avctx->frame_num);
-+            sd->size = mbcount * sizeof(AVMotionVector);
++            sd->size = mbcount * entry_size;
 +        } else {
-+            av_frame_remove_side_data(pict, AV_FRAME_DATA_MOTION_VECTORS);
++            av_frame_remove_side_data(pict, sd_type);
 +        }
 +    }
 +
-+debug_section:
-+    // --- Optimization 4: early exit skips debug section entirely in production ---
-+    if (!(avctx->debug & (FF_DEBUG_QP | FF_DEBUG_MB_TYPE)))
-+        return;
-+
-+    /* TODO: export all the following to make them accessible for users (and filters) */
-+    if (avctx->hwaccel || !mbtype_table)
-+        return;
- 
-     if (avctx->debug & (FF_DEBUG_QP | FF_DEBUG_MB_TYPE)) {
-         int x,y;
++}
 diff -u -I '/tmp/ffconf\.' -x .git -x config.h -x config_components.h -x '*tests' -x '*.pc' -x ffmpeg_g -x ffprobe_g -x ffmpeg -x ffprobe -x .version -x '*.so' -x '*.so.*' -x '*.ver.*' -x '*.a' -x '*.o' -x '*.d' -x '*.S' -x '*.asm' -x doc -x ffversion.h -r a/libavcodec/mpegutils.h b/libavcodec/mpegutils.h
---- a/libavcodec/mpegutils.h	2026-03-31 09:28:42.048343917 +0200
-+++ b/libavcodec/mpegutils.h	2026-02-18 14:05:02.210537502 +0100
-@@ -109,4 +109,12 @@
+--- a/libavcodec/mpegutils.h	2026-04-17 17:36:28.018411430 +0200
++++ b/libavcodec/mpegutils.h	2026-04-16 09:15:46.785219905 +0200
+@@ -109,4 +109,13 @@
                            const int8_t *qscale_table, int16_t (*const motion_val[2])[2],
                            int mb_width, int mb_height, int mb_stride, int quarter_sample);
  
 +/**
-+ * Print debugging info for the given picture.
++ * Optimized variant for motion_vectors_only mode — skips debug output
++ * and emits compact motion vectors (src + dst only, no motion_x/y).
 + */
 +void ff_print_debug_info2_optimized(AVCodecContext *avctx, AVFrame *pict,
 +                          const uint32_t *mbtype_table,
-+                          const int8_t *qscale_table, int16_t (*const motion_val[2])[2],
++                          int16_t (*const motion_val[2])[2],
 +                          int mb_width, int mb_height, int mb_stride, int quarter_sample);
 +
  #endif /* AVCODEC_MPEGUTILS_H */
 diff -u -I '/tmp/ffconf\.' -x .git -x config.h -x config_components.h -x '*tests' -x '*.pc' -x ffmpeg_g -x ffprobe_g -x ffmpeg -x ffprobe -x .version -x '*.so' -x '*.so.*' -x '*.ver.*' -x '*.a' -x '*.o' -x '*.d' -x '*.S' -x '*.asm' -x doc -x ffversion.h -r a/libavcodec/options_table.h b/libavcodec/options_table.h
---- a/libavcodec/options_table.h	2026-03-31 09:28:42.064519941 +0200
+--- a/libavcodec/options_table.h	2026-04-17 17:36:28.026379210 +0200
 +++ b/libavcodec/options_table.h	2026-02-23 09:44:19.967610706 +0100
 @@ -72,6 +72,7 @@
  {"bitexact", "use only bitexact functions (except (I)DCT)", 0, AV_OPT_TYPE_CONST, {.i64 = AV_CODEC_FLAG_BITEXACT }, INT_MIN, INT_MAX, A|V|S|D|E, .unit = "flags"},
@@ -2303,7 +2522,7 @@ diff -u -I '/tmp/ffconf\.' -x .git -x config.h -x config_components.h -x '*tests
  {"output_corrupt", "Output even potentially corrupted frames", 0, AV_OPT_TYPE_CONST, {.i64 = AV_CODEC_FLAG_OUTPUT_CORRUPT }, INT_MIN, INT_MAX, V|D, .unit = "flags"},
  {"flags2", NULL, OFFSET(flags2), AV_OPT_TYPE_FLAGS, {.i64 = DEFAULT}, 0, UINT_MAX, V|A|E|D|S, .unit = "flags2"},
 diff -u -I '/tmp/ffconf\.' -x .git -x config.h -x config_components.h -x '*tests' -x '*.pc' -x ffmpeg_g -x ffprobe_g -x ffmpeg -x ffprobe -x .version -x '*.so' -x '*.so.*' -x '*.ver.*' -x '*.a' -x '*.o' -x '*.d' -x '*.S' -x '*.asm' -x doc -x ffversion.h -r a/libavcodec/svq3.c b/libavcodec/svq3.c
---- a/libavcodec/svq3.c	2026-03-31 09:28:42.117092014 +0200
+--- a/libavcodec/svq3.c	2026-04-17 17:36:28.070202001 +0200
 +++ b/libavcodec/svq3.c	2025-12-18 16:42:38.347409614 +0100
 @@ -1262,7 +1262,7 @@
      if (!s->cur_pic->f || !s->last_pic->f || !s->next_pic->f)
@@ -2314,8 +2533,32 @@ diff -u -I '/tmp/ffconf\.' -x .git -x config.h -x config_components.h -x '*tests
      ff_h264_pred_init(&s->hpc, AV_CODEC_ID_SVQ3, 8, 1);
      ff_videodsp_init(&s->vdsp, 8);
  
+diff -u -I '/tmp/ffconf\.' -x .git -x config.h -x config_components.h -x '*tests' -x '*.pc' -x ffmpeg_g -x ffprobe_g -x ffmpeg -x ffprobe -x .version -x '*.so' -x '*.so.*' -x '*.ver.*' -x '*.a' -x '*.o' -x '*.d' -x '*.S' -x '*.asm' -x doc -x ffversion.h -r a/libavcodec/videotoolbox_vp9.c b/libavcodec/videotoolbox_vp9.c
+--- a/libavcodec/videotoolbox_vp9.c	2026-04-17 17:36:28.098089232 +0200
++++ b/libavcodec/videotoolbox_vp9.c	2025-12-18 16:42:38.367409680 +0100
+@@ -83,7 +83,7 @@
+     p = vt_extradata;
+ 
+     *p++ = 1; /* version */
+-    AV_WB24(p, 0); /* flags */
++    AV_WB24(p + 1, 0); /* flags */
+     p += 3;
+ 
+    *p++ = h->h.profile;
+diff -u -I '/tmp/ffconf\.' -x .git -x config.h -x config_components.h -x '*tests' -x '*.pc' -x ffmpeg_g -x ffprobe_g -x ffmpeg -x ffprobe -x .version -x '*.so' -x '*.so.*' -x '*.ver.*' -x '*.a' -x '*.o' -x '*.d' -x '*.S' -x '*.asm' -x doc -x ffversion.h -r a/libavcodec/videotoolboxenc.c b/libavcodec/videotoolboxenc.c
+--- a/libavcodec/videotoolboxenc.c	2026-04-17 17:36:28.098089232 +0200
++++ b/libavcodec/videotoolboxenc.c	2026-03-31 14:18:36.067805027 +0200
+@@ -2151,7 +2151,7 @@
+             uint8_t *new_sei;
+             old_sei_length = find_sei_end(avctx, dst_box, box_len, &new_sei);
+             if (old_sei_length < 0)
+-                return old_sei_length;
++                return status;
+ 
+             wrote_bytes = write_sei(sei,
+                                     SEI_TYPE_USER_DATA_REGISTERED_ITU_T_T35,
 diff -u -I '/tmp/ffconf\.' -x .git -x config.h -x config_components.h -x '*tests' -x '*.pc' -x ffmpeg_g -x ffprobe_g -x ffmpeg -x ffprobe -x .version -x '*.so' -x '*.so.*' -x '*.ver.*' -x '*.a' -x '*.o' -x '*.d' -x '*.S' -x '*.asm' -x doc -x ffversion.h -r a/libavcodec/x86/h264_cabac.c b/libavcodec/x86/h264_cabac.c
---- a/libavcodec/x86/h264_cabac.c	2026-03-31 09:28:42.177752101 +0200
+--- a/libavcodec/x86/h264_cabac.c	2026-04-17 17:36:28.125976462 +0200
 +++ b/libavcodec/x86/h264_cabac.c	2026-02-18 09:22:19.621714740 +0100
 @@ -203,6 +203,173 @@
      );
@@ -2491,3 +2734,930 @@ diff -u -I '/tmp/ffconf\.' -x .git -x config.h -x config_components.h -x '*tests
  #endif /* HAVE_7REGS && BROKEN_COMPILER */
  
  #endif /* HAVE_INLINE_ASM */
+diff -u -I '/tmp/ffconf\.' -x .git -x config.h -x config_components.h -x '*tests' -x '*.pc' -x ffmpeg_g -x ffprobe_g -x ffmpeg -x ffprobe -x .version -x '*.so' -x '*.so.*' -x '*.ver.*' -x '*.a' -x '*.o' -x '*.d' -x '*.S' -x '*.asm' -x doc -x ffversion.h -r a/libavfilter/avf_showwaves.c b/libavfilter/avf_showwaves.c
+--- a/libavfilter/avf_showwaves.c	2026-04-17 17:36:28.169799253 +0200
++++ b/libavfilter/avf_showwaves.c	2025-12-18 16:42:38.435409908 +0100
+@@ -0,0 +1,923 @@
++/*
++ * Copyright (c) 2012 Stefano Sabatini
++ *
++ * This file is part of FFmpeg.
++ *
++ * FFmpeg is free software; you can redistribute it and/or
++ * modify it under the terms of the GNU Lesser General Public
++ * License as published by the Free Software Foundation; either
++ * version 2.1 of the License, or (at your option) any later version.
++ *
++ * FFmpeg is distributed in the hope that it will be useful,
++ * but WITHOUT ANY WARRANTY; without even the implied warranty of
++ * MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the GNU
++ * Lesser General Public License for more details.
++ *
++ * You should have received a copy of the GNU Lesser General Public
++ * License along with FFmpeg; if not, write to the Free Software
++ * Foundation, Inc., 51 Franklin Street, Fifth Floor, Boston, MA 02110-1301 USA
++ */
++
++/**
++ * @file
++ * audio to video multimedia filter
++ */
++
++#include "config_components.h"
++
++#include "libavutil/avassert.h"
++#include "libavutil/avstring.h"
++#include "libavutil/channel_layout.h"
++#include "libavutil/intreadwrite.h"
++#include "libavutil/mem.h"
++#include "libavutil/opt.h"
++#include "libavutil/parseutils.h"
++#include "avfilter.h"
++#include "filters.h"
++#include "formats.h"
++#include "audio.h"
++#include "video.h"
++
++enum ShowWavesMode {
++    MODE_POINT,
++    MODE_LINE,
++    MODE_P2P,
++    MODE_CENTERED_LINE,
++    MODE_NB,
++};
++
++enum ShowWavesScale {
++    SCALE_LIN,
++    SCALE_LOG,
++    SCALE_SQRT,
++    SCALE_CBRT,
++    SCALE_NB,
++};
++
++enum ShowWavesDrawMode {
++    DRAW_SCALE,
++    DRAW_FULL,
++    DRAW_NB,
++};
++
++enum ShowWavesFilterMode {
++    FILTER_AVERAGE,
++    FILTER_PEAK,
++    FILTER_NB,
++};
++
++struct frame_node {
++    AVFrame *frame;
++    struct frame_node *next;
++};
++
++typedef struct ShowWavesContext {
++    const AVClass *class;
++    int w, h;
++    AVRational rate;
++    char *colors;
++    int buf_idx;
++    int16_t *buf_idy;    /* y coordinate of previous sample for each channel */
++    int16_t *history;
++    int history_nb_samples;
++    int history_index;
++    AVFrame *outpicref;
++    AVRational n, q, c;
++    int pixstep;
++    int mode;                   ///< ShowWavesMode
++    int scale;                  ///< ShowWavesScale
++    int draw_mode;              ///< ShowWavesDrawMode
++    int split_channels;
++    int filter_mode;
++    uint8_t *fg;
++
++    int (*get_h)(int16_t sample, int height);
++    void (*draw_sample)(uint8_t *buf, int height, int linesize,
++                        int16_t *prev_y, const uint8_t color[4], int h);
++
++    /* single picture */
++    int single_pic;
++    struct frame_node *audio_frames;
++    struct frame_node *last_frame;
++    int64_t total_samples;
++    int64_t *sum; /* abs sum of the samples per channel */
++} ShowWavesContext;
++
++#define OFFSET(x) offsetof(ShowWavesContext, x)
++#define FLAGS AV_OPT_FLAG_FILTERING_PARAM|AV_OPT_FLAG_VIDEO_PARAM
++
++static const AVOption showwaves_options[] = {
++    { "size", "set video size", OFFSET(w), AV_OPT_TYPE_IMAGE_SIZE, {.str = "600x240"}, 0, 0, FLAGS },
++    { "s",    "set video size", OFFSET(w), AV_OPT_TYPE_IMAGE_SIZE, {.str = "600x240"}, 0, 0, FLAGS },
++    { "mode", "select display mode", OFFSET(mode), AV_OPT_TYPE_INT, {.i64=MODE_POINT}, 0, MODE_NB-1,        .flags=FLAGS, .unit="mode"},
++        { "point", "draw a point for each sample",         0, AV_OPT_TYPE_CONST, {.i64=MODE_POINT},         .flags=FLAGS, .unit="mode"},
++        { "line",  "draw a line for each sample",          0, AV_OPT_TYPE_CONST, {.i64=MODE_LINE},          .flags=FLAGS, .unit="mode"},
++        { "p2p",   "draw a line between samples",          0, AV_OPT_TYPE_CONST, {.i64=MODE_P2P},           .flags=FLAGS, .unit="mode"},
++        { "cline", "draw a centered line for each sample", 0, AV_OPT_TYPE_CONST, {.i64=MODE_CENTERED_LINE}, .flags=FLAGS, .unit="mode"},
++    { "n",    "set how many samples to show in the same point", OFFSET(n), AV_OPT_TYPE_RATIONAL, {.i64 = 0}, 0, INT_MAX, FLAGS },
++    { "rate", "set video rate", OFFSET(rate), AV_OPT_TYPE_VIDEO_RATE, {.str = "25"}, 0, INT_MAX, FLAGS },
++    { "r",    "set video rate", OFFSET(rate), AV_OPT_TYPE_VIDEO_RATE, {.str = "25"}, 0, INT_MAX, FLAGS },
++    { "split_channels", "draw channels separately", OFFSET(split_channels), AV_OPT_TYPE_BOOL, {.i64 = 0}, 0, 1, FLAGS },
++    { "colors", "set channels colors", OFFSET(colors), AV_OPT_TYPE_STRING, {.str = "red|green|blue|yellow|orange|lime|pink|magenta|brown" }, 0, 0, FLAGS },
++    { "scale", "set amplitude scale", OFFSET(scale), AV_OPT_TYPE_INT, {.i64 = 0 }, 0, SCALE_NB-1, FLAGS, .unit="scale" },
++        { "lin", "linear",         0, AV_OPT_TYPE_CONST, {.i64=SCALE_LIN}, .flags=FLAGS, .unit="scale"},
++        { "log", "logarithmic",    0, AV_OPT_TYPE_CONST, {.i64=SCALE_LOG}, .flags=FLAGS, .unit="scale"},
++        { "sqrt", "square root",   0, AV_OPT_TYPE_CONST, {.i64=SCALE_SQRT}, .flags=FLAGS, .unit="scale"},
++        { "cbrt", "cubic root",    0, AV_OPT_TYPE_CONST, {.i64=SCALE_CBRT}, .flags=FLAGS, .unit="scale"},
++    { "draw", "set draw mode", OFFSET(draw_mode), AV_OPT_TYPE_INT, {.i64 = DRAW_SCALE}, 0, DRAW_NB-1, FLAGS, .unit="draw" },
++        { "scale", "scale pixel values for each drawn sample", 0, AV_OPT_TYPE_CONST, {.i64=DRAW_SCALE}, .flags=FLAGS, .unit="draw"},
++        { "full",  "draw every pixel for sample directly",     0, AV_OPT_TYPE_CONST, {.i64=DRAW_FULL},  .flags=FLAGS, .unit="draw"},
++    { NULL }
++};
++
++AVFILTER_DEFINE_CLASS(showwaves);
++
++static av_cold void uninit(AVFilterContext *ctx)
++{
++    ShowWavesContext *showwaves = ctx->priv;
++
++    av_frame_free(&showwaves->outpicref);
++    av_freep(&showwaves->buf_idy);
++    av_freep(&showwaves->history);
++    av_freep(&showwaves->fg);
++
++    if (showwaves->single_pic) {
++        struct frame_node *node = showwaves->audio_frames;
++        while (node) {
++            struct frame_node *tmp = node;
++
++            node = node->next;
++            av_frame_free(&tmp->frame);
++            av_freep(&tmp);
++        }
++        av_freep(&showwaves->sum);
++        showwaves->last_frame = NULL;
++    }
++}
++
++static int query_formats(const AVFilterContext *ctx,
++                         AVFilterFormatsConfig **cfg_in,
++                         AVFilterFormatsConfig **cfg_out)
++{
++    AVFilterFormats *formats = NULL;
++    static const enum AVSampleFormat sample_fmts[] = { AV_SAMPLE_FMT_S16, AV_SAMPLE_FMT_NONE };
++    static const enum AVPixelFormat pix_fmts[] = { AV_PIX_FMT_RGBA, AV_PIX_FMT_GRAY8, AV_PIX_FMT_NONE };
++    int ret;
++
++    /* set input audio formats */
++    formats = ff_make_format_list(sample_fmts);
++    if ((ret = ff_formats_ref(formats, &cfg_in[0]->formats)) < 0)
++        return ret;
++
++    /* set output video format */
++    formats = ff_make_format_list(pix_fmts);
++    if ((ret = ff_formats_ref(formats, &cfg_out[0]->formats)) < 0)
++        return ret;
++
++    return 0;
++}
++
++static int get_lin_h(int16_t sample, int height)
++{
++    return height/2 - av_rescale(sample, height/2, INT16_MAX);
++}
++
++static int get_lin_h2(int16_t sample, int height)
++{
++    return av_rescale(FFABS(sample), height, INT16_MAX);
++}
++
++static int get_log_h(int16_t sample, int height)
++{
++    return height/2 - FFSIGN(sample) * (log10(1 + FFABS(sample)) * (height/2) / log10(1 + INT16_MAX));
++}
++
++static int get_log_h2(int16_t sample, int height)
++{
++    return log10(1 + FFABS(sample)) * height / log10(1 + INT16_MAX);
++}
++
++static int get_sqrt_h(int16_t sample, int height)
++{
++    return height/2 - FFSIGN(sample) * (sqrt(FFABS(sample)) * (height/2) / sqrt(INT16_MAX));
++}
++
++static int get_sqrt_h2(int16_t sample, int height)
++{
++    return sqrt(FFABS(sample)) * height / sqrt(INT16_MAX);
++}
++
++static int get_cbrt_h(int16_t sample, int height)
++{
++    return height/2 - FFSIGN(sample) * (cbrt(FFABS(sample)) * (height/2) / cbrt(INT16_MAX));
++}
++
++static int get_cbrt_h2(int16_t sample, int height)
++{
++    return cbrt(FFABS(sample)) * height / cbrt(INT16_MAX);
++}
++
++static void draw_sample_point_rgba_scale(uint8_t *buf, int height, int linesize,
++                                         int16_t *prev_y,
++                                         const uint8_t color[4], int h)
++{
++    if (h >= 0 && h < height) {
++        buf[h * linesize + 0] += color[0];
++        buf[h * linesize + 1] += color[1];
++        buf[h * linesize + 2] += color[2];
++        buf[h * linesize + 3] += color[3];
++    }
++}
++
++static void draw_sample_point_rgba_full(uint8_t *buf, int height, int linesize,
++                                   int16_t *prev_y,
++                                   const uint8_t color[4], int h)
++{
++    uint32_t clr = AV_RN32(color);
++    if (h >= 0 && h < height)
++        AV_WN32(buf + h * linesize, clr);
++}
++
++static void draw_sample_line_rgba_scale(uint8_t *buf, int height, int linesize,
++                                        int16_t *prev_y,
++                                        const uint8_t color[4], int h)
++{
++    int start   = height/2;
++    int end     = av_clip(h, 0, height-1);
++    uint8_t *bufk;
++    if (start > end)
++        FFSWAP(int16_t, start, end);
++    bufk = buf + start * linesize;
++    for (int k = start; k < end; k++, bufk += linesize) {
++        bufk[0] += color[0];
++        bufk[1] += color[1];
++        bufk[2] += color[2];
++        bufk[3] += color[3];
++    }
++}
++
++static void draw_sample_line_rgba_full(uint8_t *buf, int height, int linesize,
++                                       int16_t *prev_y,
++                                       const uint8_t color[4], int h)
++{
++    int start   = height/2;
++    int end     = av_clip(h, 0, height-1);
++    uint32_t clr = AV_RN32(color);
++    uint8_t *bufk;
++    if (start > end)
++        FFSWAP(int16_t, start, end);
++    bufk = buf + start * linesize;
++    for (int k = start; k < end; k++, bufk += linesize)
++        AV_WN32(bufk, clr);
++}
++
++static void draw_sample_p2p_rgba_scale(uint8_t *buf, int height, int linesize,
++                                       int16_t *prev_y,
++                                       const uint8_t color[4], int h)
++{
++    if (h >= 0 && h < height) {
++        buf[h * linesize + 0] += color[0];
++        buf[h * linesize + 1] += color[1];
++        buf[h * linesize + 2] += color[2];
++        buf[h * linesize + 3] += color[3];
++        if (*prev_y && h != *prev_y) {
++            int start = *prev_y;
++            uint8_t *bufk;
++            int end = av_clip(h, 0, height-1);
++            if (start > end)
++                FFSWAP(int16_t, start, end);
++            bufk = buf + (start + 1) * linesize;
++            for (int k = start + 1; k < end; k++, bufk += linesize) {
++                bufk[0] += color[0];
++                bufk[1] += color[1];
++                bufk[2] += color[2];
++                bufk[3] += color[3];
++            }
++        }
++    }
++    *prev_y = h;
++}
++
++static void draw_sample_p2p_rgba_full(uint8_t *buf, int height, int linesize,
++                                      int16_t *prev_y,
++                                      const uint8_t color[4], int h)
++{
++    uint32_t clr = AV_RN32(color);
++    if (h >= 0 && h < height) {
++        AV_WN32(buf + h * linesize, clr);
++        if (*prev_y && h != *prev_y) {
++            int start = *prev_y;
++            uint8_t *bufk;
++            int end = av_clip(h, 0, height-1);
++            if (start > end)
++                FFSWAP(int16_t, start, end);
++            bufk = buf + (start + 1) * linesize;
++            for (int k = start + 1; k < end; k++, bufk += linesize)
++                AV_WN32(bufk, clr);
++        }
++    }
++    *prev_y = h;
++}
++
++static void draw_sample_cline_rgba_scale(uint8_t *buf, int height, int linesize,
++                                         int16_t *prev_y,
++                                         const uint8_t color[4], int h)
++{
++    const int start = (height - h) / 2;
++    const int end   = start + h;
++    uint8_t *bufk = buf + start * linesize;
++    for (int k = start; k < end; k++, bufk += linesize) {
++        bufk[0] += color[0];
++        bufk[1] += color[1];
++        bufk[2] += color[2];
++        bufk[3] += color[3];
++    }
++}
++
++static void draw_sample_cline_rgba_full(uint8_t *buf, int height, int linesize,
++                                         int16_t *prev_y,
++                                         const uint8_t color[4], int h)
++{
++    uint32_t clr = AV_RN32(color);
++    const int start = (height - h) / 2;
++    const int end   = start + h;
++    uint8_t *bufk = buf + start * linesize;
++    for (int k = start; k < end; k++, bufk += linesize)
++        AV_WN32(bufk, clr);
++}
++
++static void draw_sample_point_gray(uint8_t *buf, int height, int linesize,
++                                   int16_t *prev_y,
++                                   const uint8_t color[4], int h)
++{
++    if (h >= 0 && h < height)
++        buf[h * linesize] += color[0];
++}
++
++static void draw_sample_line_gray(uint8_t *buf, int height, int linesize,
++                                  int16_t *prev_y,
++                                  const uint8_t color[4], int h)
++{
++    int k;
++    int start   = height/2;
++    int end     = av_clip(h, 0, height-1);
++    if (start > end)
++        FFSWAP(int16_t, start, end);
++    for (k = start; k < end; k++)
++        buf[k * linesize] += color[0];
++}
++
++static void draw_sample_p2p_gray(uint8_t *buf, int height, int linesize,
++                                 int16_t *prev_y,
++                                 const uint8_t color[4], int h)
++{
++    int k;
++    if (h >= 0 && h < height) {
++        buf[h * linesize] += color[0];
++        if (*prev_y && h != *prev_y) {
++            int start = *prev_y;
++            int end = av_clip(h, 0, height-1);
++            if (start > end)
++                FFSWAP(int16_t, start, end);
++            for (k = start + 1; k < end; k++)
++                buf[k * linesize] += color[0];
++        }
++    }
++    *prev_y = h;
++}
++
++static void draw_sample_cline_gray(uint8_t *buf, int height, int linesize,
++                                   int16_t *prev_y,
++                                   const uint8_t color[4], int h)
++{
++    int k;
++    const int start = (height - h) / 2;
++    const int end   = start + h;
++    for (k = start; k < end; k++)
++        buf[k * linesize] += color[0];
++}
++
++static int config_output(AVFilterLink *outlink)
++{
++    FilterLink *l = ff_filter_link(outlink);
++    AVFilterContext *ctx = outlink->src;
++    AVFilterLink *inlink = ctx->inputs[0];
++    ShowWavesContext *showwaves = ctx->priv;
++    int nb_channels = inlink->ch_layout.nb_channels;
++    char *colors, *saveptr = NULL;
++    uint8_t x;
++    int ch;
++
++    showwaves->q = av_make_q(0, 1);
++    showwaves->c = av_make_q(0, 1);
++
++    if (showwaves->single_pic) {
++        showwaves->n = av_make_q(1, 1);
++        l->frame_rate = av_make_q(1, 1);
++    } else {
++        if (!showwaves->n.num || !showwaves->n.den) {
++            showwaves->n = av_mul_q(av_make_q(inlink->sample_rate,
++                                              showwaves->w), av_inv_q(showwaves->rate));
++            l->frame_rate = showwaves->rate;
++        } else {
++            l->frame_rate = av_div_q(av_make_q(inlink->sample_rate, showwaves->w), showwaves->n);
++        }
++    }
++
++    showwaves->buf_idx = 0;
++    if (!FF_ALLOCZ_TYPED_ARRAY(showwaves->buf_idy, nb_channels)) {
++        av_log(ctx, AV_LOG_ERROR, "Could not allocate showwaves buffer\n");
++        return AVERROR(ENOMEM);
++    }
++
++    showwaves->history_nb_samples = av_rescale(showwaves->w * nb_channels * 2,
++                                               showwaves->n.num, showwaves->n.den);
++    if (showwaves->history_nb_samples <= 0)
++        return AVERROR(EINVAL);
++    showwaves->history = av_calloc(showwaves->history_nb_samples,
++                                   sizeof(*showwaves->history));
++    if (!showwaves->history)
++        return AVERROR(ENOMEM);
++
++    outlink->time_base = av_inv_q(l->frame_rate);
++    outlink->w = showwaves->w;
++    outlink->h = showwaves->h;
++    outlink->sample_aspect_ratio = (AVRational){1,1};
++
++    av_log(ctx, AV_LOG_VERBOSE, "s:%dx%d r:%f n:%f\n",
++           showwaves->w, showwaves->h, av_q2d(l->frame_rate), av_q2d(showwaves->n));
++
++    switch (outlink->format) {
++    case AV_PIX_FMT_GRAY8:
++        switch (showwaves->mode) {
++        case MODE_POINT:         showwaves->draw_sample = draw_sample_point_gray; break;
++        case MODE_LINE:          showwaves->draw_sample = draw_sample_line_gray;  break;
++        case MODE_P2P:           showwaves->draw_sample = draw_sample_p2p_gray;   break;
++        case MODE_CENTERED_LINE: showwaves->draw_sample = draw_sample_cline_gray; break;
++        default:
++            return AVERROR_BUG;
++        }
++        showwaves->pixstep = 1;
++        break;
++    case AV_PIX_FMT_RGBA:
++        switch (showwaves->mode) {
++        case MODE_POINT:         showwaves->draw_sample = showwaves->draw_mode == DRAW_SCALE ? draw_sample_point_rgba_scale : draw_sample_point_rgba_full; break;
++        case MODE_LINE:          showwaves->draw_sample = showwaves->draw_mode == DRAW_SCALE ? draw_sample_line_rgba_scale  : draw_sample_line_rgba_full;  break;
++        case MODE_P2P:           showwaves->draw_sample = showwaves->draw_mode == DRAW_SCALE ? draw_sample_p2p_rgba_scale   : draw_sample_p2p_rgba_full;   break;
++        case MODE_CENTERED_LINE: showwaves->draw_sample = showwaves->draw_mode == DRAW_SCALE ? draw_sample_cline_rgba_scale : draw_sample_cline_rgba_full; break;
++        default:
++            return AVERROR_BUG;
++        }
++        showwaves->pixstep = 4;
++        break;
++    }
++
++    switch (showwaves->scale) {
++    case SCALE_LIN:
++        switch (showwaves->mode) {
++        case MODE_POINT:
++        case MODE_LINE:
++        case MODE_P2P:           showwaves->get_h = get_lin_h;  break;
++        case MODE_CENTERED_LINE: showwaves->get_h = get_lin_h2; break;
++        default:
++            return AVERROR_BUG;
++        }
++        break;
++    case SCALE_LOG:
++        switch (showwaves->mode) {
++        case MODE_POINT:
++        case MODE_LINE:
++        case MODE_P2P:           showwaves->get_h = get_log_h;  break;
++        case MODE_CENTERED_LINE: showwaves->get_h = get_log_h2; break;
++        default:
++            return AVERROR_BUG;
++        }
++        break;
++    case SCALE_SQRT:
++        switch (showwaves->mode) {
++        case MODE_POINT:
++        case MODE_LINE:
++        case MODE_P2P:           showwaves->get_h = get_sqrt_h;  break;
++        case MODE_CENTERED_LINE: showwaves->get_h = get_sqrt_h2; break;
++        default:
++            return AVERROR_BUG;
++        }
++        break;
++    case SCALE_CBRT:
++        switch (showwaves->mode) {
++        case MODE_POINT:
++        case MODE_LINE:
++        case MODE_P2P:           showwaves->get_h = get_cbrt_h;  break;
++        case MODE_CENTERED_LINE: showwaves->get_h = get_cbrt_h2; break;
++        default:
++            return AVERROR_BUG;
++        }
++        break;
++    }
++
++    showwaves->fg = av_malloc_array(nb_channels, 4 * sizeof(*showwaves->fg));
++    if (!showwaves->fg)
++        return AVERROR(ENOMEM);
++
++    colors = av_strdup(showwaves->colors);
++    if (!colors)
++        return AVERROR(ENOMEM);
++
++    if (showwaves->draw_mode == DRAW_SCALE) {
++        /* multiplication factor, pre-computed to avoid in-loop divisions */
++        x = (showwaves->n.den * 255) / ((showwaves->split_channels ? 1 : nb_channels) * showwaves->n.num);
++    } else {
++        x = 255;
++    }
++    if (outlink->format == AV_PIX_FMT_RGBA) {
++        uint8_t fg[4] = { 0xff, 0xff, 0xff, 0xff };
++
++        for (ch = 0; ch < nb_channels; ch++) {
++            char *color;
++
++            color = av_strtok(ch == 0 ? colors : NULL, " |", &saveptr);
++            if (color)
++                av_parse_color(fg, color, -1, ctx);
++            showwaves->fg[4*ch + 0] = fg[0] * x / 255.;
++            showwaves->fg[4*ch + 1] = fg[1] * x / 255.;
++            showwaves->fg[4*ch + 2] = fg[2] * x / 255.;
++            showwaves->fg[4*ch + 3] = fg[3] * x / 255.;
++        }
++    } else {
++        for (ch = 0; ch < nb_channels; ch++)
++            showwaves->fg[4 * ch + 0] = x;
++    }
++    av_free(colors);
++
++    return 0;
++}
++
++inline static int push_frame(AVFilterLink *outlink, int i, int64_t pts)
++{
++    AVFilterContext *ctx = outlink->src;
++    AVFilterLink *inlink = ctx->inputs[0];
++    ShowWavesContext *showwaves = outlink->src->priv;
++    int nb_channels = inlink->ch_layout.nb_channels;
++    int ret;
++
++    showwaves->outpicref->duration = 1;
++    showwaves->outpicref->pts = av_rescale_q(pts + i,
++                                             inlink->time_base,
++                                             outlink->time_base);
++
++    ret = ff_filter_frame(outlink, showwaves->outpicref);
++    showwaves->outpicref = NULL;
++    showwaves->buf_idx = 0;
++    for (int i = 0; i < nb_channels; i++)
++        showwaves->buf_idy[i] = 0;
++    return ret;
++}
++
++static int push_single_pic(AVFilterLink *outlink)
++{
++    AVFilterContext *ctx = outlink->src;
++    AVFilterLink *inlink = ctx->inputs[0];
++    ShowWavesContext *showwaves = ctx->priv;
++    int64_t n = 0, column_max_samples = showwaves->total_samples / outlink->w;
++    int64_t remaining_samples = showwaves->total_samples - (column_max_samples * outlink->w);
++    int64_t last_column_samples = column_max_samples + remaining_samples;
++    AVFrame *out = showwaves->outpicref;
++    struct frame_node *node;
++    const int nb_channels = inlink->ch_layout.nb_channels;
++    const int ch_height = showwaves->split_channels ? outlink->h / nb_channels : outlink->h;
++    const int linesize = out->linesize[0];
++    const int pixstep = showwaves->pixstep;
++    int col = 0;
++    int64_t *sum = showwaves->sum;
++
++    if (column_max_samples == 0) {
++        av_log(ctx, AV_LOG_ERROR, "Too few samples\n");
++        return AVERROR(EINVAL);
++    }
++
++    av_log(ctx, AV_LOG_DEBUG, "Create frame averaging %"PRId64" samples per column\n", column_max_samples);
++
++    memset(sum, 0, nb_channels * sizeof(*sum));
++
++    for (node = showwaves->audio_frames; node; node = node->next) {
++        int i;
++        const AVFrame *frame = node->frame;
++        const int16_t *p = (const int16_t *)frame->data[0];
++
++        for (i = 0; i < frame->nb_samples; i++) {
++            int64_t max_samples = col == outlink->w - 1 ? last_column_samples: column_max_samples;
++            int ch;
++
++            switch (showwaves->filter_mode) {
++            case FILTER_AVERAGE:
++                for (ch = 0; ch < nb_channels; ch++)
++                    sum[ch] += abs(p[ch + i*nb_channels]);
++                break;
++            case FILTER_PEAK:
++                for (ch = 0; ch < nb_channels; ch++)
++                    sum[ch] = FFMAX(sum[ch], abs(p[ch + i*nb_channels]));
++                break;
++            }
++
++            n++;
++            if (n == max_samples) {
++                for (ch = 0; ch < nb_channels; ch++) {
++                    int16_t sample = sum[ch] / (showwaves->filter_mode == FILTER_AVERAGE ? max_samples : 1);
++                    uint8_t *buf = out->data[0] + col * pixstep;
++                    int h;
++
++                    if (showwaves->split_channels)
++                        buf += ch*ch_height*linesize;
++                    av_assert0(col < outlink->w);
++                    h = showwaves->get_h(sample, ch_height);
++                    showwaves->draw_sample(buf, ch_height, linesize, &showwaves->buf_idy[ch], &showwaves->fg[ch * 4], h);
++                    sum[ch] = 0;
++                }
++                col++;
++                n = 0;
++            }
++        }
++    }
++
++    return push_frame(outlink, 0, 0);
++}
++
++
++static int request_frame(AVFilterLink *outlink)
++{
++    ShowWavesContext *showwaves = outlink->src->priv;
++    AVFilterLink *inlink = outlink->src->inputs[0];
++    int ret;
++
++    ret = ff_request_frame(inlink);
++    if (ret == AVERROR_EOF && showwaves->outpicref) {
++        push_single_pic(outlink);
++    }
++
++    return ret;
++}
++
++static int alloc_out_frame(ShowWavesContext *showwaves,
++                           AVFilterLink *outlink)
++{
++    if (!showwaves->outpicref) {
++        AVFrame *out = showwaves->outpicref =
++            ff_get_video_buffer(outlink, outlink->w, outlink->h);
++        if (!out)
++            return AVERROR(ENOMEM);
++        out->width  = outlink->w;
++        out->height = outlink->h;
++        for (int j = 0; j < outlink->h; j++)
++            memset(out->data[0] + j*out->linesize[0], 0, outlink->w * showwaves->pixstep);
++    }
++    return 0;
++}
++
++static av_cold int init(AVFilterContext *ctx)
++{
++    ShowWavesContext *showwaves = ctx->priv;
++
++    if (!strcmp(ctx->filter->name, "showwavespic")) {
++        showwaves->single_pic = 1;
++        showwaves->mode = MODE_CENTERED_LINE;
++    }
++
++    return 0;
++}
++
++#if CONFIG_SHOWWAVES_FILTER
++
++static int showwaves_filter_frame(AVFilterLink *inlink, AVFrame *insamples)
++{
++    AVFilterContext *ctx = inlink->dst;
++    AVFilterLink *outlink = ctx->outputs[0];
++    ShowWavesContext *showwaves = ctx->priv;
++    const int nb_samples = insamples->nb_samples;
++    AVFrame *outpicref = showwaves->outpicref;
++    const int16_t *p = (const int16_t *)insamples->data[0];
++    int16_t *history = showwaves->history;
++    const int nb_channels = inlink->ch_layout.nb_channels;
++    int i, j, ret = 0, linesize;
++    const int pixstep = showwaves->pixstep;
++    const int ch_height = showwaves->split_channels ? outlink->h / nb_channels : outlink->h;
++    const int history_nb_samples = showwaves->history_nb_samples;
++    const int split_channels = showwaves->split_channels;
++    const AVRational i_n = av_inv_q(showwaves->n);
++    const AVRational u_q = av_make_q(1, 1);
++    const AVRational z_q = av_make_q(0, 1);
++    int16_t *buf_idy = showwaves->buf_idy;
++    int idx = showwaves->history_index;
++    int buf_idx = showwaves->buf_idx;
++    const uint8_t *fg = showwaves->fg;
++    const int w = showwaves->w;
++    uint8_t *dst;
++
++    for (int n = 0; n < nb_samples * nb_channels; n++) {
++        history[idx++] = p[n];
++        if (idx >= history_nb_samples)
++            idx = 0;
++    }
++    showwaves->history_index = idx;
++
++    ret = alloc_out_frame(showwaves, outlink);
++    if (ret < 0)
++        goto end;
++    outpicref = showwaves->outpicref;
++    linesize = outpicref->linesize[0];
++
++    /* draw data in the buffer */
++    dst = outpicref->data[0];
++    for (i = 0; i < history_nb_samples; i++) {
++        for (j = 0; j < nb_channels; j++) {
++            uint8_t *buf = dst + buf_idx * pixstep;
++            int h;
++
++            if (split_channels)
++                buf += j*ch_height*linesize;
++            h = showwaves->get_h(history[idx++], ch_height);
++            if (idx >= history_nb_samples)
++                idx = 0;
++            showwaves->draw_sample(buf, ch_height, linesize,
++                                   &buf_idy[j], &fg[j * 4], h);
++        }
++
++        showwaves->c = av_add_q(showwaves->c, i_n);
++        if (av_cmp_q(showwaves->c, u_q) >= 0) {
++            showwaves->c = z_q;
++            buf_idx++;
++        }
++        if (buf_idx == w)
++            break;
++    }
++
++    showwaves->buf_idx = buf_idx;
++
++    if ((ret = push_frame(outlink, history_nb_samples - i - 1, insamples->pts)) < 0)
++        goto end;
++    outpicref = showwaves->outpicref;
++end:
++    av_frame_free(&insamples);
++    return ret;
++}
++
++static int activate(AVFilterContext *ctx)
++{
++    AVFilterLink *inlink = ctx->inputs[0];
++    AVFilterLink *outlink = ctx->outputs[0];
++    ShowWavesContext *showwaves = ctx->priv;
++    AVRational q;
++    AVFrame *in;
++    int nb_samples;
++    int ret;
++
++    FF_FILTER_FORWARD_STATUS_BACK(outlink, inlink);
++
++    q = av_add_q(showwaves->q, av_mul_q(av_make_q(outlink->w, 1), showwaves->n));
++    nb_samples = (q.num + (q.den / 2)) / q.den;
++    ret = ff_inlink_consume_samples(inlink, nb_samples, nb_samples, &in);
++    if (ret < 0)
++        return ret;
++    if (ret > 0) {
++        showwaves->q = av_sub_q(q, av_make_q(nb_samples, 1));
++        return showwaves_filter_frame(inlink, in);
++    }
++
++    FF_FILTER_FORWARD_STATUS(inlink, outlink);
++    FF_FILTER_FORWARD_WANTED(outlink, inlink);
++
++    return FFERROR_NOT_READY;
++}
++
++static const AVFilterPad showwaves_outputs[] = {
++    {
++        .name          = "default",
++        .type          = AVMEDIA_TYPE_VIDEO,
++        .config_props  = config_output,
++    },
++};
++
++const FFFilter ff_avf_showwaves = {
++    .p.name        = "showwaves",
++    .p.description = NULL_IF_CONFIG_SMALL("Convert input audio to a video output."),
++    .p.priv_class  = &showwaves_class,
++    .init          = init,
++    .uninit        = uninit,
++    .priv_size     = sizeof(ShowWavesContext),
++    FILTER_INPUTS(ff_audio_default_filterpad),
++    .activate      = activate,
++    FILTER_OUTPUTS(showwaves_outputs),
++    FILTER_QUERY_FUNC2(query_formats),
++};
++
++#endif // CONFIG_SHOWWAVES_FILTER
++
++#if CONFIG_SHOWWAVESPIC_FILTER
++
++#define OFFSET(x) offsetof(ShowWavesContext, x)
++#define FLAGS AV_OPT_FLAG_FILTERING_PARAM|AV_OPT_FLAG_VIDEO_PARAM
++
++static const AVOption showwavespic_options[] = {
++    { "size", "set video size", OFFSET(w), AV_OPT_TYPE_IMAGE_SIZE, {.str = "600x240"}, 0, 0, FLAGS },
++    { "s",    "set video size", OFFSET(w), AV_OPT_TYPE_IMAGE_SIZE, {.str = "600x240"}, 0, 0, FLAGS },
++    { "split_channels", "draw channels separately", OFFSET(split_channels), AV_OPT_TYPE_BOOL, {.i64 = 0}, 0, 1, FLAGS },
++    { "colors", "set channels colors", OFFSET(colors), AV_OPT_TYPE_STRING, {.str = "red|green|blue|yellow|orange|lime|pink|magenta|brown" }, 0, 0, FLAGS },
++    { "scale", "set amplitude scale", OFFSET(scale), AV_OPT_TYPE_INT, {.i64 = 0 }, 0, SCALE_NB-1, FLAGS, .unit="scale" },
++        { "lin", "linear",         0, AV_OPT_TYPE_CONST, {.i64=SCALE_LIN}, .flags=FLAGS, .unit="scale"},
++        { "log", "logarithmic",    0, AV_OPT_TYPE_CONST, {.i64=SCALE_LOG}, .flags=FLAGS, .unit="scale"},
++        { "sqrt", "square root",   0, AV_OPT_TYPE_CONST, {.i64=SCALE_SQRT}, .flags=FLAGS, .unit="scale"},
++        { "cbrt", "cubic root",    0, AV_OPT_TYPE_CONST, {.i64=SCALE_CBRT}, .flags=FLAGS, .unit="scale"},
++    { "draw", "set draw mode", OFFSET(draw_mode), AV_OPT_TYPE_INT, {.i64 = DRAW_SCALE}, 0, DRAW_NB-1, FLAGS, .unit="draw" },
++        { "scale", "scale pixel values for each drawn sample", 0, AV_OPT_TYPE_CONST, {.i64=DRAW_SCALE}, .flags=FLAGS, .unit="draw"},
++        { "full",  "draw every pixel for sample directly",     0, AV_OPT_TYPE_CONST, {.i64=DRAW_FULL},  .flags=FLAGS, .unit="draw"},
++    { "filter", "set filter mode", OFFSET(filter_mode), AV_OPT_TYPE_INT, {.i64 = FILTER_AVERAGE}, 0, FILTER_NB-1, FLAGS, .unit="filter" },
++        { "average", "use average samples", 0, AV_OPT_TYPE_CONST, {.i64=FILTER_AVERAGE}, .flags=FLAGS, .unit="filter"},
++        { "peak",    "use peak samples",    0, AV_OPT_TYPE_CONST, {.i64=FILTER_PEAK},    .flags=FLAGS, .unit="filter"},
++    { NULL }
++};
++
++AVFILTER_DEFINE_CLASS(showwavespic);
++
++static int showwavespic_config_input(AVFilterLink *inlink)
++{
++    AVFilterContext *ctx = inlink->dst;
++    ShowWavesContext *showwaves = ctx->priv;
++
++    if (showwaves->single_pic) {
++        showwaves->sum = av_calloc(inlink->ch_layout.nb_channels, sizeof(*showwaves->sum));
++        if (!showwaves->sum)
++            return AVERROR(ENOMEM);
++    }
++
++    return 0;
++}
++
++static int showwavespic_filter_frame(AVFilterLink *inlink, AVFrame *insamples)
++{
++    AVFilterContext *ctx = inlink->dst;
++    AVFilterLink *outlink = ctx->outputs[0];
++    ShowWavesContext *showwaves = ctx->priv;
++    int ret = 0;
++
++    if (showwaves->single_pic) {
++        struct frame_node *f;
++
++        ret = alloc_out_frame(showwaves, outlink);
++        if (ret < 0)
++            goto end;
++
++        /* queue the audio frame */
++        f = av_malloc(sizeof(*f));
++        if (!f) {
++            ret = AVERROR(ENOMEM);
++            goto end;
++        }
++        f->frame = insamples;
++        f->next = NULL;
++        if (!showwaves->last_frame) {
++            showwaves->audio_frames =
++            showwaves->last_frame   = f;
++        } else {
++            showwaves->last_frame->next = f;
++            showwaves->last_frame = f;
++        }
++        showwaves->total_samples += insamples->nb_samples;
++
++        return 0;
++    }
++
++end:
++    av_frame_free(&insamples);
++    return ret;
++}
++
++static const AVFilterPad showwavespic_inputs[] = {
++    {
++        .name         = "default",
++        .type         = AVMEDIA_TYPE_AUDIO,
++        .config_props = showwavespic_config_input,
++        .filter_frame = showwavespic_filter_frame,
++    },
++};
++
++static const AVFilterPad showwavespic_outputs[] = {
++    {
++        .name          = "default",
++        .type          = AVMEDIA_TYPE_VIDEO,
++        .config_props  = config_output,
++        .request_frame = request_frame,
++    },
++};
++
++const FFFilter ff_avf_showwavespic = {
++    .p.name        = "showwavespic",
++    .p.description = NULL_IF_CONFIG_SMALL("Convert input audio to a video output single picture."),
++    .p.priv_class  = &showwavespic_class,
++    .init          = init,
++    .uninit        = uninit,
++    .priv_size     = sizeof(ShowWavesContext),
++    FILTER_INPUTS(showwavespic_inputs),
++    FILTER_OUTPUTS(showwavespic_outputs),
++    FILTER_QUERY_FUNC2(query_formats),
++};
++
++#endif // CONFIG_SHOWWAVESPIC_FILTER
