@@ -38,8 +38,46 @@ diff -u -I '/tmp/ffconf\.' -x .git -x config.h -x config_components.h -x '*tests
              FrameDecodeData *fdd = frame->private_ref;
 diff -u -I '/tmp/ffconf\.' -x .git -x config.h -x config_components.h -x '*tests' -x '*.pc' -x ffmpeg_g -x ffprobe_g -x ffmpeg -x ffprobe -x .version -x '*.so' -x '*.so.*' -x '*.ver.*' -x '*.a' -x '*.o' -x '*.d' -x '*.S' -x '*.asm' -x doc -x ffversion.h -r a/libavcodec/h264_cabac.c b/libavcodec/h264_cabac.c
 --- a/libavcodec/h264_cabac.c	2026-04-20 09:38:30.523237117 +0200
-+++ b/libavcodec/h264_cabac.c	2026-04-01 22:17:44.778805703 +0200
-@@ -1818,7 +1818,7 @@
++++ b/libavcodec/h264_cabac.c	2026-04-22 15:37:05.031842964 +0200
+@@ -1775,37 +1775,6 @@
+ 
+ }
+ 
+-static av_noinline void decode_cabac_residual_dc_internal(const H264Context *h,
+-                                                          H264SliceContext *sl,
+-                                                          int16_t *block,
+-                                                          int cat, int n,
+-                                                          const uint8_t *scantable,
+-                                                          int max_coeff)
+-{
+-    decode_cabac_residual_internal(h, sl, block, cat, n, scantable, NULL, max_coeff, 1, 0);
+-}
+-
+-static av_noinline void decode_cabac_residual_dc_internal_422(const H264Context *h,
+-                                                              H264SliceContext *sl,
+-                                                              int16_t *block,
+-                                                              int cat, int n,
+-                                                              const uint8_t *scantable,
+-                                                              int max_coeff)
+-{
+-    decode_cabac_residual_internal(h, sl, block, cat, n, scantable, NULL, max_coeff, 1, 1);
+-}
+-
+-static av_noinline void decode_cabac_residual_nondc_internal(const H264Context *h,
+-                                                             H264SliceContext *sl,
+-                                                             int16_t *block,
+-                                                             int cat, int n,
+-                                                             const uint8_t *scantable,
+-                                                             const uint32_t *qmul,
+-                                                             int max_coeff)
+-{
+-    decode_cabac_residual_internal(h, sl, block, cat, n, scantable, qmul, max_coeff, 0, 0);
+-}
+-
+ /* cat: 0-> DC 16x16  n = 0
+  *      1-> AC 16x16  n = luma4x4idx
+  *      2-> Luma4x4   n = luma4x4idx
+@@ -1818,7 +1787,7 @@
   * because it allows improved constant propagation into get_cabac_cbf_ctx,
   * as well as because most blocks have zero CBFs. */
  
@@ -48,8 +86,12 @@ diff -u -I '/tmp/ffconf\.' -x .git -x config.h -x config_components.h -x '*tests
                                                        H264SliceContext *sl,
                                                        int16_t *block,
                                                        int cat, int n,
-@@ -1833,7 +1833,7 @@
-     decode_cabac_residual_dc_internal(h, sl, block, cat, n, scantable, max_coeff);
+@@ -1830,10 +1799,10 @@
+         sl->non_zero_count_cache[scan8[n]] = 0;
+         return;
+     }
+-    decode_cabac_residual_dc_internal(h, sl, block, cat, n, scantable, max_coeff);
++    decode_cabac_residual_internal(h, sl, block, cat, n, scantable, NULL, max_coeff, 1, 0);
  }
  
 -static av_always_inline void
@@ -57,8 +99,12 @@ diff -u -I '/tmp/ffconf\.' -x .git -x config.h -x config_components.h -x '*tests
  decode_cabac_residual_dc_422(const H264Context *h, H264SliceContext *sl,
                               int16_t *block,
                               int cat, int n, const uint8_t *scantable,
-@@ -1847,7 +1847,7 @@
-     decode_cabac_residual_dc_internal_422(h, sl, block, cat, n, scantable, max_coeff);
+@@ -1844,10 +1813,10 @@
+         sl->non_zero_count_cache[scan8[n]] = 0;
+         return;
+     }
+-    decode_cabac_residual_dc_internal_422(h, sl, block, cat, n, scantable, max_coeff);
++    decode_cabac_residual_internal(h, sl, block, cat, n, scantable, NULL, max_coeff, 1, 1);
  }
  
 -static av_always_inline void decode_cabac_residual_nondc(const H264Context *h,
@@ -66,8 +112,12 @@ diff -u -I '/tmp/ffconf\.' -x .git -x config.h -x config_components.h -x '*tests
                                                           H264SliceContext *sl,
                                                           int16_t *block,
                                                           int cat, int n,
-@@ -1867,7 +1867,7 @@
-     decode_cabac_residual_nondc_internal(h, sl, block, cat, n, scantable, qmul, max_coeff);
+@@ -1864,10 +1833,10 @@
+         }
+         return;
+     }
+-    decode_cabac_residual_nondc_internal(h, sl, block, cat, n, scantable, qmul, max_coeff);
++    decode_cabac_residual_internal(h, sl, block, cat, n, scantable, qmul, max_coeff, 0, 0);
  }
  
 -static av_always_inline void decode_cabac_luma_residual(const H264Context *h, H264SliceContext *sl,
@@ -75,7 +125,7 @@ diff -u -I '/tmp/ffconf\.' -x .git -x config.h -x config_components.h -x '*tests
                                                          const uint8_t *scan, const uint8_t *scan8x8,
                                                          int pixel_shift, int mb_type, int cbp, int p)
  {
-@@ -1913,11 +1913,274 @@
+@@ -1913,6 +1882,256 @@
      }
  }
  
@@ -246,7 +296,6 @@ diff -u -I '/tmp/ffconf\.' -x .git -x config.h -x config_components.h -x '*tests
 +
 +av_always_inline void decode_cabac_residual_dc_skip(const H264Context *h,
 +                                                      H264SliceContext *sl,
-+                                                      int16_t *block,
 +                                                      int cat, int n,
 +                                                      const uint8_t *scantable,
 +                                                      int max_coeff)
@@ -261,7 +310,6 @@ diff -u -I '/tmp/ffconf\.' -x .git -x config.h -x config_components.h -x '*tests
 +
 +av_always_inline void
 +decode_cabac_residual_dc_422_skip(const H264Context *h, H264SliceContext *sl,
-+                             int16_t *block,
 +                             int cat, int n, const uint8_t *scantable,
 +                             int max_coeff)
 +{
@@ -275,10 +323,8 @@ diff -u -I '/tmp/ffconf\.' -x .git -x config.h -x config_components.h -x '*tests
 +
 +av_always_inline void decode_cabac_residual_nondc_skip(const H264Context *h,
 +                                                         H264SliceContext *sl,
-+                                                         int16_t *block,
 +                                                         int cat, int n,
 +                                                         const uint8_t *scantable,
-+                                                         const uint32_t *qmul,
 +                                                         int max_coeff)
 +{
 +    /* read coded block flag */
@@ -295,7 +341,7 @@ diff -u -I '/tmp/ffconf\.' -x .git -x config.h -x config_components.h -x '*tests
 +
 +av_always_inline void 
 +decode_cabac_luma_residual_skip(const H264Context *h, H264SliceContext *sl,
-+                               const uint8_t *scan, const uint8_t *scan8x8, int pixel_shift,
++                               const uint8_t *scan, const uint8_t *scan8x8,
 +                               int mb_type, int cbp, int p)
 +{
 +
@@ -303,12 +349,12 @@ diff -u -I '/tmp/ffconf\.' -x .git -x config.h -x config_components.h -x '*tests
 +    int i8x8, i4x4;
 +    
 +    if( IS_INTRA16x16( mb_type ) ) {
-+        decode_cabac_residual_dc_skip(h, sl, NULL, ctx_cat[0][p], LUMA_DC_BLOCK_INDEX+p, scan, 16);
++        decode_cabac_residual_dc_skip(h, sl, ctx_cat[0][p], LUMA_DC_BLOCK_INDEX+p, scan, 16);
 +
 +        if( cbp&15 ) {
 +            for( i4x4 = 0; i4x4 < 16; i4x4++ ) {
 +                const int index = 16*p + i4x4;
-+                decode_cabac_residual_nondc_skip(h, sl, NULL, ctx_cat[1][p], index, scan + 1, NULL, 15);
++                decode_cabac_residual_nondc_skip(h, sl, ctx_cat[1][p], index, scan + 1, 15);
 +            }
 +        } else {
 +            fill_rectangle(&sl->non_zero_count_cache[scan8[16*p]], 4, 4, 8, 0, 1);
@@ -318,40 +364,35 @@ diff -u -I '/tmp/ffconf\.' -x .git -x config.h -x config_components.h -x '*tests
 +            if( cbp & (1<<i8x8) ) {
 +                if( IS_8x8DCT(mb_type) ) {
 +                    const int index = 16*p + 4*i8x8;
-+                    decode_cabac_residual_nondc_skip(h, sl, NULL, ctx_cat[3][p], index,
-+                                                scan8x8, NULL, 64);
++                    decode_cabac_residual_nondc_skip(h, sl, ctx_cat[3][p], index,
++                                                scan8x8, 64);
 +                } else {
 +                    for( i4x4 = 0; i4x4 < 4; i4x4++ ) {
 +                        const int index = 16*p + 4*i8x8 + i4x4;
-+                        decode_cabac_residual_nondc_skip(h, sl, NULL, ctx_cat[2][p], index, scan, NULL, 16);
++                        decode_cabac_residual_nondc_skip(h, sl, ctx_cat[2][p], index, scan, 16);
 +                    }
 +                }
 +            } else {
 +                fill_rectangle(&sl->non_zero_count_cache[scan8[4*i8x8+16*p]], 2, 2, 8, 0, 1);
 +            }
 +        }
-+    
 +    }
 +}
 +
  /**
   * Decode a macroblock.
-+ * @param decode_luma_residual Function pointer for luma residual decoding
-+ * @param decode_residual_dc Function pointer for DC residual decoding
-+ * @param decode_residual_dc_422 Function pointer for 422 DC residual decoding
-+ * @param decode_residual_nondc Function pointer for non-DC residual decoding
   * @return 0 if OK, ER_AC_ERROR / ER_DC_ERROR / ER_MV_ERROR if an error is noticed
-  */
--int ff_h264_decode_mb_cabac(const H264Context *h, H264SliceContext *sl)
-+int ff_h264_decode_mb_cabac(const H264Context *h, H264SliceContext *sl,
-+                            cabac_luma_residual_func decode_luma_residual,
-+                            cabac_residual_dc_func decode_residual_dc,
-+                            cabac_residual_dc_func decode_residual_dc_422,
-+                            cabac_residual_nondc_func decode_residual_nondc)
- {
-     const SPS *sps = h->ps.sps;
-     int mb_xy;
-@@ -2085,27 +2348,34 @@
+@@ -2061,7 +2280,8 @@
+         h->cbp_table[mb_xy] = 0xf7ef;
+         h->chroma_pred_mode_table[mb_xy] = 0;
+         // In deblocking, the quantizer is 0
+-        h->cur_pic.qscale_table[mb_xy] = 0;
++        if (!h->avctx->motion_vectors_only)
++            h->cur_pic.qscale_table[mb_xy] = 0;
+         // All coeffs are present
+         memset(h->non_zero_count[mb_xy], 16, 48);
+         h->cur_pic.mb_type[mb_xy] = mb_type;
+@@ -2085,27 +2305,34 @@
                  for( i = 0; i < 16; i++ ) {
                      int pred = pred_intra_mode(h, sl, i);
                      sl->intra4x4_pred_mode_cache[scan8[i]] = decode_cabac_mb_intra4x4_pred_mode(sl, pred);
@@ -399,7 +440,7 @@ diff -u -I '/tmp/ffconf\.' -x .git -x config.h -x config_components.h -x '*tests
              sl->chroma_pred_mode = pred_mode;
          } else {
              sl->chroma_pred_mode = DC_128_PRED8x8;
-@@ -2393,8 +2663,6 @@
+@@ -2393,8 +2620,6 @@
  
      if( cbp || IS_INTRA16x16( mb_type ) ) {
          const uint8_t *scan, *scan8x8;
@@ -408,30 +449,45 @@ diff -u -I '/tmp/ffconf\.' -x .git -x config.h -x config_components.h -x '*tests
          // decode_cabac_mb_dqp
          if(get_cabac_noinline( &sl->cabac, &sl->cabac_state[60 + (sl->last_qscale_diff != 0)])){
              int val = 1;
-@@ -2433,29 +2701,32 @@
+@@ -2433,29 +2658,49 @@
              scan    = sl->qscale ? h->zigzag_scan : h->zigzag_scan_q0;
          }
  
 -        decode_cabac_luma_residual(h, sl, scan, scan8x8, pixel_shift, mb_type, cbp, 0);
 +        // Skip DCT - only parse CABAC for synchronization
-+        decode_luma_residual(h, sl, scan, scan8x8, pixel_shift, mb_type, cbp, 0);
++        if (h->avctx->motion_vectors_only)
++            decode_cabac_luma_residual_skip(h, sl, scan, scan8x8, mb_type, cbp, 0);
++        else
++            decode_cabac_luma_residual(h, sl, scan, scan8x8, pixel_shift, mb_type, cbp, 0);
          if (CHROMA444(h)) {
 -            decode_cabac_luma_residual(h, sl, scan, scan8x8, pixel_shift, mb_type, cbp, 1);
 -            decode_cabac_luma_residual(h, sl, scan, scan8x8, pixel_shift, mb_type, cbp, 2);
 +            // Skip DCT - only parse CABAC for synchronization
-+            decode_luma_residual(h, sl, scan, scan8x8, pixel_shift, mb_type, cbp, 1);
-+            decode_luma_residual(h, sl, scan, scan8x8, pixel_shift, mb_type, cbp, 2);
++            if (h->avctx->motion_vectors_only) {
++                decode_cabac_luma_residual_skip(h, sl, scan, scan8x8, mb_type, cbp, 1);
++                decode_cabac_luma_residual_skip(h, sl, scan, scan8x8, mb_type, cbp, 2);
++            } else {
++                decode_cabac_luma_residual(h, sl, scan, scan8x8, pixel_shift, mb_type, cbp, 1);
++                decode_cabac_luma_residual(h, sl, scan, scan8x8, pixel_shift, mb_type, cbp, 2);
++            }
          } else if (CHROMA422(h)) {
 +            DECLARE_ALIGNED(16, int16_t, dummy_chroma)[64];
              if( cbp&0x30 ){
                  int c;
-                 for (c = 0; c < 2; c++)
+-                for (c = 0; c < 2; c++)
 -                    decode_cabac_residual_dc_422(h, sl, sl->mb + ((256 + 16*16*c) << pixel_shift), 3,
 -                                                 CHROMA_DC_BLOCK_INDEX + c,
 -                                                 ff_h264_chroma422_dc_scan, 8);
-+                    decode_residual_dc_422(h, sl, dummy_chroma, 3,
-+                                           CHROMA_DC_BLOCK_INDEX + c,
-+                                           ff_h264_chroma422_dc_scan, 8);
++                for (c = 0; c < 2; c++) {
++                    if (h->avctx->motion_vectors_only)
++                        decode_cabac_residual_dc_422_skip(h, sl, 3,
++                                                          CHROMA_DC_BLOCK_INDEX + c,
++                                                          ff_h264_chroma422_dc_scan, 8);
++                    else
++                        decode_cabac_residual_dc_422(h, sl, dummy_chroma, 3,
++                                                     CHROMA_DC_BLOCK_INDEX + c,
++                                                     ff_h264_chroma422_dc_scan, 8);
++                }
              }
  
              if( cbp&0x20 ) {
@@ -447,22 +503,31 @@ diff -u -I '/tmp/ffconf\.' -x .git -x config.h -x config_components.h -x '*tests
                              const int index = 16 + 16 * c + 8*i8x8 + i;
 -                            decode_cabac_residual_nondc(h, sl, mb, 4, index, scan + 1, qmul, 15);
 -                            mb += 16<<pixel_shift;
-+                            decode_residual_nondc(h, sl, dummy_chroma, 4, index, scan + 1, qmul, 15);
++                            if (h->avctx->motion_vectors_only)
++                                decode_cabac_residual_nondc_skip(h, sl, 4, index, scan + 1, 15);
++                            else
++                                decode_cabac_residual_nondc(h, sl, dummy_chroma, 4, index, scan + 1, qmul, 15);
                          }
                      }
                  }
-@@ -2464,20 +2735,23 @@
+@@ -2464,20 +2709,31 @@
                  fill_rectangle(&sl->non_zero_count_cache[scan8[32]], 4, 4, 8, 0, 1);
              }
          } else /* yuv420 */ {
 +            DECLARE_ALIGNED(16, int16_t, dummy_chroma)[64];
              if( cbp&0x30 ){
                  int c;
-                 for (c = 0; c < 2; c++)
+-                for (c = 0; c < 2; c++)
 -                    decode_cabac_residual_dc(h, sl, sl->mb + ((256 + 16 * 16 * c) << pixel_shift),
 -                                             3, CHROMA_DC_BLOCK_INDEX + c, ff_h264_chroma_dc_scan, 4);
-+                    decode_residual_dc(h, sl, dummy_chroma,
-+                                       3, CHROMA_DC_BLOCK_INDEX + c, ff_h264_chroma_dc_scan, 4);
++                for (c = 0; c < 2; c++) {
++                    if (h->avctx->motion_vectors_only)
++                        decode_cabac_residual_dc_skip(h, sl,
++                                                      3, CHROMA_DC_BLOCK_INDEX + c, ff_h264_chroma_dc_scan, 4);
++                    else
++                        decode_cabac_residual_dc(h, sl, dummy_chroma,
++                                                 3, CHROMA_DC_BLOCK_INDEX + c, ff_h264_chroma_dc_scan, 4);
++                }
              }
  
              if( cbp&0x20 ) {
@@ -475,13 +540,26 @@ diff -u -I '/tmp/ffconf\.' -x .git -x config.h -x config_components.h -x '*tests
                      for( i = 0; i < 4; i++ ) {
                          const int index = 16 + 16 * c + i;
 -                        decode_cabac_residual_nondc(h, sl, sl->mb + (16*index << pixel_shift), 4, index, scan + 1, qmul, 15);
-+                        decode_residual_nondc(h, sl, dummy_chroma, 4, index, scan + 1, qmul, 15);
++                        if (h->avctx->motion_vectors_only)
++                            decode_cabac_residual_nondc_skip(h, sl, 4, index, scan + 1, 15);
++                        else
++                            decode_cabac_residual_nondc(h, sl, dummy_chroma, 4, index, scan + 1, qmul, 15);
                      }
                  }
              } else {
+@@ -2492,7 +2748,8 @@
+         sl->last_qscale_diff = 0;
+     }
+ 
+-    h->cur_pic.qscale_table[mb_xy] = sl->qscale;
++    if (!h->avctx->motion_vectors_only)
++        h->cur_pic.qscale_table[mb_xy] = sl->qscale;
+     write_back_non_zero_count(h, sl);
+ 
+     return 0;
 diff -u -I '/tmp/ffconf\.' -x .git -x config.h -x config_components.h -x '*tests' -x '*.pc' -x ffmpeg_g -x ffprobe_g -x ffmpeg -x ffprobe -x .version -x '*.so' -x '*.so.*' -x '*.ver.*' -x '*.a' -x '*.o' -x '*.d' -x '*.S' -x '*.asm' -x doc -x ffversion.h -r a/libavcodec/h264_cavlc.c b/libavcodec/h264_cavlc.c
 --- a/libavcodec/h264_cavlc.c	2026-04-20 09:38:30.523237117 +0200
-+++ b/libavcodec/h264_cavlc.c	2026-04-01 22:17:58.046816727 +0200
++++ b/libavcodec/h264_cavlc.c	2026-04-22 15:44:26.563466478 +0200
 @@ -402,7 +402,7 @@
   * @param max_coeff number of coefficients in the block
   * @return <0 if an error occurred
@@ -500,15 +578,13 @@ diff -u -I '/tmp/ffconf\.' -x .git -x config.h -x config_components.h -x '*tests
  int decode_luma_residual(const H264Context *h, H264SliceContext *sl,
                           GetBitContext *gb, const uint8_t *scan,
                           const uint8_t *scan8x8, int pixel_shift,
-@@ -662,7 +662,214 @@
+@@ -662,6 +662,211 @@
      }
  }
  
--int ff_h264_decode_mb_cavlc(const H264Context *h, H264SliceContext *sl)
 +av_always_inline
 +int decode_luma_residual_skip(const H264Context *h, H264SliceContext *sl,
-+                              GetBitContext *gb, const uint8_t *scan,
-+                              const uint8_t *scan8x8, int pixel_shift,
++                              GetBitContext *gb,
 +                              int mb_type, int cbp, int p)
 +{
 +    int i4x4, i8x8;
@@ -516,7 +592,7 @@ diff -u -I '/tmp/ffconf\.' -x .git -x config.h -x config_components.h -x '*tests
 +    if(IS_INTRA16x16(mb_type)){
 +        /* for intra16x16 the DC block has 16 coeffs and AC blocks may follow.
 +         * decode_residual_skip will update non_zero_count_cache appropriately. */
-+        if (decode_residual_skip(h, sl, gb, NULL, LUMA_DC_BLOCK_INDEX + p, NULL, NULL, 16) < 0) {
++        if (decode_residual_skip(h, sl, gb, LUMA_DC_BLOCK_INDEX + p, 16) < 0) {
 +            return -1;
 +        }
 +
@@ -526,7 +602,7 @@ diff -u -I '/tmp/ffconf\.' -x .git -x config.h -x config_components.h -x '*tests
 +            for(i8x8=0; i8x8<4; i8x8++){
 +                for(i4x4=0; i4x4<4; i4x4++){
 +                    const int index= i4x4 + 4*i8x8 + p*16;
-+                    if( decode_residual_skip(h, sl, gb, NULL, index, NULL, NULL, 15) < 0 ){
++                    if( decode_residual_skip(h, sl, gb, index, 15) < 0 ){
 +                        return -1;
 +                    }
 +                }
@@ -544,7 +620,7 @@ diff -u -I '/tmp/ffconf\.' -x .git -x config.h -x config_components.h -x '*tests
 +                if(IS_8x8DCT(mb_type)){
 +                    for(i4x4=0; i4x4<4; i4x4++){
 +                        const int index= i4x4 + 4*i8x8 + p*16;
-+                        if( decode_residual_skip(h, sl, gb, NULL,  index, NULL, NULL, 16) < 0 )
++                        if( decode_residual_skip(h, sl, gb,  index, 16) < 0 )
 +                            return -1;
 +                    }
 +                    /* update nnz like original: the non_zero_count_cache entries already updated */
@@ -554,7 +630,7 @@ diff -u -I '/tmp/ffconf\.' -x .git -x config.h -x config_components.h -x '*tests
 +                }else{
 +                    for(i4x4=0; i4x4<4; i4x4++){
 +                        const int index= i4x4 + 4*i8x8 + p*16;
-+                        if( decode_residual_skip(h, sl, gb, NULL, index, NULL, NULL, 16) < 0 ){
++                        if( decode_residual_skip(h, sl, gb, index, 16) < 0 ){
 +                            return -1;
 +                        }
 +                        new_cbp |= sl->non_zero_count_cache[scan8[index]] << i8x8;
@@ -570,8 +646,7 @@ diff -u -I '/tmp/ffconf\.' -x .git -x config.h -x config_components.h -x '*tests
 +}
 +
 +int decode_residual_skip(const H264Context *h, H264SliceContext *sl,
-+                                GetBitContext *gb, int16_t *block, int n,
-+                                const uint8_t *scantable, const uint32_t *qmul,
++                                GetBitContext *gb, int n,
 +                                int max_coeff)
 +{
 +    int zeros_left, coeff_token, total_coeff, i, trailing_ones, run_before;
@@ -712,11 +787,20 @@ diff -u -I '/tmp/ffconf\.' -x .git -x config.h -x config_components.h -x '*tests
 +    return 0;
 +}
 +
-+int ff_h264_decode_mb_cavlc(const H264Context *h, H264SliceContext *sl, decode_cavlc_residual_func decode_cavlc_residual, decode_cavlc_luma_residual_func decode_cavlc_luma_residual)
+ int ff_h264_decode_mb_cavlc(const H264Context *h, H264SliceContext *sl)
  {
      int mb_xy;
-     int partition_count;
-@@ -790,20 +997,29 @@
+@@ -752,7 +957,8 @@
+         skip_bits_long(&sl->gb, mb_size);
+ 
+         // In deblocking, the quantizer is 0
+-        h->cur_pic.qscale_table[mb_xy] = 0;
++        if (!h->avctx->motion_vectors_only)
++            h->cur_pic.qscale_table[mb_xy] = 0;
+         // All coeffs are present
+         memset(h->non_zero_count[mb_xy], 16, 48);
+ 
+@@ -790,20 +996,29 @@
                      sl->intra4x4_pred_mode_cache[scan8[i]] = mode;
              }
              write_back_intra_pred_mode(h, sl);
@@ -757,39 +841,64 @@ diff -u -I '/tmp/ffconf\.' -x .git -x config.h -x config_components.h -x '*tests
              sl->chroma_pred_mode = pred_mode;
          } else {
              sl->chroma_pred_mode = DC_128_PRED8x8;
-@@ -1096,15 +1312,15 @@
+@@ -1095,40 +1310,65 @@
+             scan8x8 = sl->qscale ? h->zigzag_scan8x8_cavlc : h->zigzag_scan8x8_cavlc_q0;
              scan    = sl->qscale ? h->zigzag_scan : h->zigzag_scan_q0;
          }
- 
+-
 -        if ((ret = decode_luma_residual(h, sl, gb, scan, scan8x8, pixel_shift, mb_type, cbp, 0)) < 0 ) {
-+        if((ret = decode_cavlc_luma_residual(h, sl, gb, scan, scan8x8, pixel_shift, mb_type, cbp, 0)) < 0 ) {
-             return -1;
+-            return -1;
++        if (h->avctx->motion_vectors_only) {
++            if((ret = decode_luma_residual_skip(h, sl, gb, mb_type, cbp, 0)) < 0 )
++                return -1;
++        } else {
++            if((ret = decode_luma_residual(h, sl, gb, scan, scan8x8, pixel_shift, mb_type, cbp, 0)) < 0 )
++                return -1;
          }
          h->cbp_table[mb_xy] |= ret << 12;
          if (CHROMA444(h)) {
 -            if (decode_luma_residual(h, sl, gb, scan, scan8x8, pixel_shift, mb_type, cbp, 1) < 0 ) {
-+            if (decode_cavlc_luma_residual(h, sl, gb, scan, scan8x8, pixel_shift, mb_type, cbp, 1) < 0 ) {
-                 return -1;
-             }
+-                return -1;
+-            }
 -            if (decode_luma_residual(h, sl, gb, scan, scan8x8, pixel_shift, mb_type, cbp, 2) < 0 ) {
-+            if (decode_cavlc_luma_residual(h, sl, gb, scan, scan8x8, pixel_shift, mb_type, cbp, 2) < 0 ) {
-                 return -1;
+-                return -1;
++            if (h->avctx->motion_vectors_only) {
++                if((ret = decode_luma_residual_skip(h, sl, gb, mb_type, cbp, 1)) < 0 )
++                    return -1;
++
++                if((ret = decode_luma_residual_skip(h, sl, gb, mb_type, cbp, 2)) < 0 )
++                    return -1;
++            } else {
++                if((ret = decode_luma_residual(h, sl, gb, scan, scan8x8, pixel_shift, mb_type, cbp, 1)) < 0 )
++                    return -1;
++
++                if((ret = decode_luma_residual(h, sl, gb, scan, scan8x8, pixel_shift, mb_type, cbp, 2)) < 0 )
++                    return -1;
              }
          } else {
-@@ -1112,22 +1328,24 @@
+             const int num_c8x8 = h->ps.sps->chroma_format_idc;
  
              if(cbp&0x30){
-                 for(chroma_idx=0; chroma_idx<2; chroma_idx++)
+-                for(chroma_idx=0; chroma_idx<2; chroma_idx++)
 -                    if (decode_residual(h, sl, gb, sl->mb + ((256 + 16*16*chroma_idx) << pixel_shift),
 -                                        CHROMA_DC_BLOCK_INDEX + chroma_idx,
 -                                        CHROMA422(h) ? ff_h264_chroma422_dc_scan : ff_h264_chroma_dc_scan,
 -                                        NULL, 4 * num_c8x8) < 0) {
-+                    if (decode_cavlc_residual(h, sl, gb, sl->mb + ((256 + 16*16*chroma_idx) << pixel_shift),
-+                                             CHROMA_DC_BLOCK_INDEX + chroma_idx,
-+                                             CHROMA422(h) ? ff_h264_chroma422_dc_scan : ff_h264_chroma_dc_scan,
-+                                             NULL, 4 * num_c8x8) < 0) {
-                         return -1;
+-                        return -1;
++                for(chroma_idx=0; chroma_idx<2; chroma_idx++) {
++                    if (h->avctx->motion_vectors_only) {
++                        if (decode_residual_skip(h, sl, gb,
++                                                CHROMA_DC_BLOCK_INDEX + chroma_idx,
++                                                4 * num_c8x8) < 0)
++                            return -1;
++                    } else {
++                        if (decode_residual(h, sl, gb, sl->mb + ((256 + 16*16*chroma_idx) << pixel_shift),
++                                                CHROMA_DC_BLOCK_INDEX + chroma_idx,
++                                                CHROMA422(h) ? ff_h264_chroma422_dc_scan : ff_h264_chroma_dc_scan,
++                                                NULL, 4 * num_c8x8) < 0)
++                            return -1;
                      }
++                }
              }
  
              if(cbp&0x20){
@@ -803,10 +912,28 @@ diff -u -I '/tmp/ffconf\.' -x .git -x config.h -x config_components.h -x '*tests
                          for (i4x4 = 0; i4x4 < 4; i4x4++) {
                              const int index = 16 + 16*chroma_idx + 8*i8x8 + i4x4;
 -                            if (decode_residual(h, sl, gb, mb, index, scan + 1, qmul, 15) < 0)
-+                            if (decode_cavlc_residual(h, sl, gb, mb, index, scan + 1, qmul, 15) < 0)
-                                 return -1;
+-                                return -1;
++
++                            if (h->avctx->motion_vectors_only) {
++                                if (decode_residual_skip(h, sl, gb, index, 15) < 0)
++                                    return -1;
++                            } else {
++                                if (decode_residual(h, sl, gb, mb, index, scan + 1, qmul, 15) < 0)
++                                    return -1;
++                            }
                              mb += 16 << pixel_shift;
                          }
+                     }
+@@ -1143,7 +1383,8 @@
+         fill_rectangle(&sl->non_zero_count_cache[scan8[16]], 4, 4, 8, 0, 1);
+         fill_rectangle(&sl->non_zero_count_cache[scan8[32]], 4, 4, 8, 0, 1);
+     }
+-    h->cur_pic.qscale_table[mb_xy] = sl->qscale;
++    if (!h->avctx->motion_vectors_only)
++        h->cur_pic.qscale_table[mb_xy] = sl->qscale;
+     write_back_non_zero_count(h, sl);
+ 
+     return 0;
 diff -u -I '/tmp/ffconf\.' -x .git -x config.h -x config_components.h -x '*tests' -x '*.pc' -x ffmpeg_g -x ffprobe_g -x ffmpeg -x ffprobe -x .version -x '*.so' -x '*.so.*' -x '*.ver.*' -x '*.a' -x '*.o' -x '*.d' -x '*.S' -x '*.asm' -x doc -x ffversion.h -r a/libavcodec/h264_mb.c b/libavcodec/h264_mb.c
 --- a/libavcodec/h264_mb.c	2026-04-20 09:38:30.523237117 +0200
 +++ b/libavcodec/h264_mb.c	2026-02-05 09:53:25.761153283 +0100
@@ -821,6 +948,19 @@ diff -u -I '/tmp/ffconf\.' -x .git -x config.h -x config_components.h -x '*tests
      const int mb_xy   = sl->mb_xy;
      const int mb_type = h->cur_pic.mb_type[mb_xy];
      int is_complex    = CONFIG_SMALL || sl->is_complex ||
+diff -u -I '/tmp/ffconf\.' -x .git -x config.h -x config_components.h -x '*tests' -x '*.pc' -x ffmpeg_g -x ffprobe_g -x ffmpeg -x ffprobe -x .version -x '*.so' -x '*.so.*' -x '*.ver.*' -x '*.a' -x '*.o' -x '*.d' -x '*.S' -x '*.asm' -x doc -x ffversion.h -r a/libavcodec/h264_mvpred.h b/libavcodec/h264_mvpred.h
+--- a/libavcodec/h264_mvpred.h	2026-04-20 09:38:30.523237117 +0200
++++ b/libavcodec/h264_mvpred.h	2026-04-22 14:54:34.960248777 +0200
+@@ -959,7 +959,8 @@
+ 
+     write_back_motion(h, sl, mb_type);
+     h->cur_pic.mb_type[mb_xy]      = mb_type;
+-    h->cur_pic.qscale_table[mb_xy] = sl->qscale;
++    if (!h->avctx->motion_vectors_only)
++        h->cur_pic.qscale_table[mb_xy] = sl->qscale;
+     h->slice_table[mb_xy]          = sl->slice_num;
+     sl->prev_mb_skipped            = 1;
+ }
 diff -u -I '/tmp/ffconf\.' -x .git -x config.h -x config_components.h -x '*tests' -x '*.pc' -x ffmpeg_g -x ffprobe_g -x ffmpeg -x ffprobe -x .version -x '*.so' -x '*.so.*' -x '*.ver.*' -x '*.a' -x '*.o' -x '*.d' -x '*.S' -x '*.asm' -x doc -x ffversion.h -r a/libavcodec/h264_parser.c b/libavcodec/h264_parser.c
 --- a/libavcodec/h264_parser.c	2026-04-20 09:38:30.523237117 +0200
 +++ b/libavcodec/h264_parser.c	2026-02-02 08:42:49.250068787 +0100
@@ -943,7 +1083,7 @@ diff -u -I '/tmp/ffconf\.' -x .git -x config.h -x config_components.h -x '*tests
              h->cur_pic_ptr->f->height != f->height ||
 diff -u -I '/tmp/ffconf\.' -x .git -x config.h -x config_components.h -x '*tests' -x '*.pc' -x ffmpeg_g -x ffprobe_g -x ffmpeg -x ffprobe -x .version -x '*.so' -x '*.so.*' -x '*.ver.*' -x '*.a' -x '*.o' -x '*.d' -x '*.S' -x '*.asm' -x doc -x ffversion.h -r a/libavcodec/h264_slice.c b/libavcodec/h264_slice.c
 --- a/libavcodec/h264_slice.c	2026-04-20 09:38:30.523237117 +0200
-+++ b/libavcodec/h264_slice.c	2026-04-01 21:46:47.643630037 +0200
++++ b/libavcodec/h264_slice.c	2026-04-22 15:16:17.660445825 +0200
 @@ -129,6 +129,17 @@
  
  static int alloc_scratch_buffers(H264SliceContext *sl, int linesize)
@@ -1100,31 +1240,9 @@ diff -u -I '/tmp/ffconf\.' -x .git -x config.h -x config_components.h -x '*tests
  
      if (h->droppable || h->er.error_occurred)
          return;
-@@ -2603,6 +2657,18 @@
+@@ -2615,17 +2669,20 @@
  
-         ff_h264_init_cabac_states(h, sl);
- 
-+        cabac_luma_residual_func decode_luma_residual = decode_cabac_luma_residual;
-+        cabac_residual_dc_func decode_residual_dc = decode_cabac_residual_dc;
-+        cabac_residual_dc_func decode_residual_dc_422 = decode_cabac_residual_dc_422;
-+        cabac_residual_nondc_func decode_residual_nondc = decode_cabac_residual_nondc;
-+
-+        if (h->avctx->motion_vectors_only) {
-+            decode_luma_residual = decode_cabac_luma_residual_skip;
-+            decode_residual_dc = decode_cabac_residual_dc_skip;
-+            decode_residual_nondc = decode_cabac_residual_nondc_skip;
-+            decode_residual_dc_422 = decode_cabac_residual_dc_422_skip;
-+        }
-+
-         for (;;) {
-             int ret, eos;
-             if (sl->mb_x + sl->mb_y * h->mb_width >= sl->next_slice_idx) {
-@@ -2613,19 +2679,23 @@
-                 return AVERROR_INVALIDDATA;
-             }
- 
--            ret = ff_h264_decode_mb_cabac(h, sl);
-+            ret = ff_h264_decode_mb_cabac(h, sl, decode_luma_residual, decode_residual_dc, decode_residual_dc_422, decode_residual_nondc);
+             ret = ff_h264_decode_mb_cabac(h, sl);
  
 +            // Motion vectors already extracted during entropy decoding; Skip decoding
              if (ret >= 0)
@@ -1136,9 +1254,8 @@ diff -u -I '/tmp/ffconf\.' -x .git -x config.h -x config_components.h -x '*tests
              if (ret >= 0 && FRAME_MBAFF(h)) {
                  sl->mb_y++;
  
--                ret = ff_h264_decode_mb_cabac(h, sl);
-+                ret = ff_h264_decode_mb_cabac(h, sl, decode_luma_residual, decode_residual_dc, decode_residual_dc_422, decode_residual_nondc);
- 
+                 ret = ff_h264_decode_mb_cabac(h, sl);
+-
 +                // Motion vectors already extracted during entropy decoding; Skip decoding
                  if (ret >= 0)
 -                    ff_h264_hl_decode_mb(h, sl);
@@ -1147,7 +1264,7 @@ diff -u -I '/tmp/ffconf\.' -x .git -x config.h -x config_components.h -x '*tests
                  sl->mb_y--;
              }
              eos = get_cabac_terminate(&sl->cabac);
-@@ -2635,7 +2705,9 @@
+@@ -2635,7 +2692,9 @@
                  er_add_slice(sl, sl->resync_mb_x, sl->resync_mb_y, sl->mb_x - 1,
                               sl->mb_y, ER_MB_END);
                  if (sl->mb_x >= lf_x_start)
@@ -1158,7 +1275,7 @@ diff -u -I '/tmp/ffconf\.' -x .git -x config.h -x config_components.h -x '*tests
                  goto finish;
              }
              if (sl->cabac.bytestream > sl->cabac.bytestream_end + 2 )
-@@ -2651,7 +2723,9 @@
+@@ -2651,7 +2710,9 @@
              }
  
              if (++sl->mb_x >= h->mb_width) {
@@ -1169,7 +1286,7 @@ diff -u -I '/tmp/ffconf\.' -x .git -x config.h -x config_components.h -x '*tests
                  sl->mb_x = lf_x_start = 0;
                  decode_finish_row(h, sl);
                  ++sl->mb_y;
-@@ -2668,11 +2742,21 @@
+@@ -2668,7 +2729,9 @@
                  er_add_slice(sl, sl->resync_mb_x, sl->resync_mb_y, sl->mb_x - 1,
                               sl->mb_y, ER_MB_END);
                  if (sl->mb_x > lf_x_start)
@@ -1180,24 +1297,9 @@ diff -u -I '/tmp/ffconf\.' -x .git -x config.h -x config_components.h -x '*tests
                  goto finish;
              }
          }
-     } else {
-+        decode_cavlc_residual_func decode_cavlc_residual = decode_residual;
-+        decode_cavlc_luma_residual_func decode_cavlc_luma_residual = decode_luma_residual;
-+        
-+        if(h->avctx->motion_vectors_only) {
-+            decode_cavlc_residual = decode_residual_skip;
-+            decode_cavlc_luma_residual = decode_luma_residual_skip;
-+        }
-+
-         for (;;) {
-             int ret;
+@@ -2686,16 +2749,20 @@
  
-@@ -2684,18 +2768,22 @@
-                 return AVERROR_INVALIDDATA;
-             }
- 
--            ret = ff_h264_decode_mb_cavlc(h, sl);
-+            ret = ff_h264_decode_mb_cavlc(h, sl, decode_cavlc_residual, decode_cavlc_luma_residual);
+             ret = ff_h264_decode_mb_cavlc(h, sl);
  
 +            // Motion vectors already extracted during entropy decoding; Skip decoding
              if (ret >= 0)
@@ -1208,8 +1310,7 @@ diff -u -I '/tmp/ffconf\.' -x .git -x config.h -x config_components.h -x '*tests
              // FIXME optimal? or let mb_decode decode 16x32 ?
              if (ret >= 0 && FRAME_MBAFF(h)) {
                  sl->mb_y++;
--                ret = ff_h264_decode_mb_cavlc(h, sl);
-+                ret = ff_h264_decode_mb_cavlc(h, sl, decode_cavlc_residual, decode_cavlc_luma_residual);
+                 ret = ff_h264_decode_mb_cavlc(h, sl);
  
 +                // Motion vectors already extracted during entropy decoding; Skip decoding
                  if (ret >= 0)
@@ -1219,7 +1320,7 @@ diff -u -I '/tmp/ffconf\.' -x .git -x config.h -x config_components.h -x '*tests
                  sl->mb_y--;
              }
  
-@@ -2708,7 +2796,9 @@
+@@ -2708,7 +2775,9 @@
              }
  
              if (++sl->mb_x >= h->mb_width) {
@@ -1230,7 +1331,7 @@ diff -u -I '/tmp/ffconf\.' -x .git -x config.h -x config_components.h -x '*tests
                  sl->mb_x = lf_x_start = 0;
                  decode_finish_row(h, sl);
                  ++sl->mb_y;
-@@ -2744,7 +2834,9 @@
+@@ -2744,7 +2813,9 @@
                      er_add_slice(sl, sl->resync_mb_x, sl->resync_mb_y,
                                   sl->mb_x - 1, sl->mb_y, ER_MB_END);
                      if (sl->mb_x > lf_x_start)
@@ -1241,7 +1342,7 @@ diff -u -I '/tmp/ffconf\.' -x .git -x config.h -x config_components.h -x '*tests
  
                      goto finish;
                  } else {
-@@ -2822,17 +2914,20 @@
+@@ -2822,17 +2893,20 @@
          if (h->postpone_filter) {
              h->postpone_filter = 0;
  
@@ -1325,67 +1426,9 @@ diff -u -I '/tmp/ffconf\.' -x .git -x config.h -x config_components.h -x '*tests
  
 diff -u -I '/tmp/ffconf\.' -x .git -x config.h -x config_components.h -x '*tests' -x '*.pc' -x ffmpeg_g -x ffprobe_g -x ffmpeg -x ffprobe -x .version -x '*.so' -x '*.so.*' -x '*.ver.*' -x '*.a' -x '*.o' -x '*.d' -x '*.S' -x '*.asm' -x doc -x ffversion.h -r a/libavcodec/h264dec.h b/libavcodec/h264dec.h
 --- a/libavcodec/h264dec.h	2026-04-20 09:38:30.527237140 +0200
-+++ b/libavcodec/h264dec.h	2026-04-16 09:16:39.450836173 +0200
-@@ -582,8 +582,131 @@
-     int skip_gray;
- } H264Context;
++++ b/libavcodec/h264dec.h	2026-04-22 15:40:47.166161900 +0200
+@@ -584,6 +584,70 @@
  
-+
-+typedef void (*cabac_luma_residual_func)(
-+    const H264Context *h, 
-+    H264SliceContext *sl,
-+    const uint8_t *scan, 
-+    const uint8_t *scan8x8,
-+    int pixel_shift, 
-+    int mb_type, 
-+    int cbp, 
-+    int p
-+);
-+
-+typedef void (*cabac_residual_dc_func)(
-+    const H264Context *h, 
-+    H264SliceContext *sl,
-+    int16_t *block, 
-+    int cat, 
-+    int n,
-+    const uint8_t *scantable, 
-+    int max_coeff
-+);
-+
-+typedef void (*cabac_residual_nondc_func)(
-+    const H264Context *h, 
-+    H264SliceContext *sl,
-+    int16_t *block, 
-+    int cat, 
-+    int n,
-+    const uint8_t *scantable, 
-+    const uint32_t *qmul, 
-+    int max_coeff
-+);
-+
-+typedef int (*decode_cavlc_residual_func)(
-+    const H264Context *h,
-+    H264SliceContext *sl,
-+    GetBitContext *gb,
-+    int16_t *block,
-+    int n,
-+    const uint8_t *scantable,
-+    const uint32_t *qmul,
-+    int max_coeff
-+);
-+
-+typedef int (*decode_cavlc_luma_residual_func)(
-+    const H264Context *h,
-+    H264SliceContext *sl,
-+    GetBitContext *gb,
-+    const uint8_t *scan,
-+    const uint8_t *scan8x8,
-+    int pixel_shift,
-+    int mb_type,
-+    int cbp,
-+    int p
-+);
-+
  extern const uint16_t ff_h264_mb_sizes[4];
  
 +
@@ -1413,21 +1456,20 @@ diff -u -I '/tmp/ffconf\.' -x .git -x config.h -x config_components.h -x '*tests
 + * CABAC residual decoding functions - skip variants for motion_vectors_only mode
 + */
 +void decode_cabac_residual_dc_skip(const H264Context *h, H264SliceContext *sl,
-+                                            int16_t *block, int cat, int n,
++                                            int cat, int n,
 +                                            const uint8_t *scantable, int max_coeff);
 +
 +void decode_cabac_residual_dc_422_skip(const H264Context *h, H264SliceContext *sl,
-+                                                int16_t *block, int cat, int n,
++                                                int cat, int n,
 +                                                const uint8_t *scantable, int max_coeff);
 +
 +void decode_cabac_residual_nondc_skip(const H264Context *h, H264SliceContext *sl,
-+                                               int16_t *block, int cat, int n,
-+                                               const uint8_t *scantable, const uint32_t *qmul,
-+                                               int max_coeff);
++                                               int cat, int n,
++                                               const uint8_t *scantable, int max_coeff);
 +
 +void decode_cabac_luma_residual_skip(const H264Context *h, H264SliceContext *sl,
 +                                              const uint8_t *scan, const uint8_t *scan8x8,
-+                                              int pixel_shift, int mb_type, int cbp, int p);
++                                              int mb_type, int cbp, int p);
 +
 +/**
 + * CAVCL residual decoding functions - normal variants 
@@ -1446,42 +1488,16 @@ diff -u -I '/tmp/ffconf\.' -x .git -x config.h -x config_components.h -x '*tests
 + * CAVCL residual decoding functions - skip variants for motion_vectors_only mode
 + */
 +int decode_residual_skip(const H264Context *h, H264SliceContext *sl,
-+                                GetBitContext *gb, int16_t *block, int n,
-+                                const uint8_t *scantable, const uint32_t *qmul,
++                                GetBitContext *gb, int n,
 +                                int max_coeff);
 +
 +int decode_luma_residual_skip(const H264Context *h, H264SliceContext *sl,
-+                              GetBitContext *gb, const uint8_t *scan,
-+                              const uint8_t *scan8x8, int pixel_shift,
++                              GetBitContext *gb,
 +                              int mb_type, int cbp, int p);
 +
  /**
   * Reconstruct bitstream slice_type.
   */
-@@ -614,13 +737,21 @@
-  * Decode a macroblock
-  * @return 0 if OK, ER_AC_ERROR / ER_DC_ERROR / ER_MV_ERROR on error
-  */
--int ff_h264_decode_mb_cavlc(const H264Context *h, H264SliceContext *sl);
-+int ff_h264_decode_mb_cavlc(const H264Context *h, H264SliceContext *sl, decode_cavlc_residual_func decode_residual_func, decode_cavlc_luma_residual_func decode_luma_residual_func);
- 
- /**
-  * Decode a CABAC coded macroblock
-+ * @param decode_luma_residual Function pointer for luma residual decoding
-+ * @param decode_residual_dc Function pointer for DC residual decoding
-+ * @param decode_residual_dc_422 Function pointer for 422 DC residual decoding
-+ * @param decode_residual_nondc Function pointer for non-DC residual decoding
-  * @return 0 if OK, ER_AC_ERROR / ER_DC_ERROR / ER_MV_ERROR on error
-  */
--int ff_h264_decode_mb_cabac(const H264Context *h, H264SliceContext *sl);
-+int ff_h264_decode_mb_cabac(const H264Context *h, H264SliceContext *sl,
-+                            cabac_luma_residual_func decode_luma_residual,
-+                            cabac_residual_dc_func decode_residual_dc,
-+                            cabac_residual_dc_func decode_residual_dc_422,
-+                            cabac_residual_nondc_func decode_residual_nondc);
- 
- void ff_h264_init_cabac_states(const H264Context *h, H264SliceContext *sl);
- 
 diff -u -I '/tmp/ffconf\.' -x .git -x config.h -x config_components.h -x '*tests' -x '*.pc' -x ffmpeg_g -x ffprobe_g -x ffmpeg -x ffprobe -x .version -x '*.so' -x '*.so.*' -x '*.ver.*' -x '*.a' -x '*.o' -x '*.d' -x '*.S' -x '*.asm' -x doc -x ffversion.h -r a/libavcodec/h264dsp.c b/libavcodec/h264dsp.c
 --- a/libavcodec/h264dsp.c	2026-04-20 09:38:30.527237140 +0200
 +++ b/libavcodec/h264dsp.c	2026-02-05 10:51:31.807706294 +0100
@@ -1578,7 +1594,7 @@ diff -u -I '/tmp/ffconf\.' -x .git -x config.h -x config_components.h -x '*tests
  void ff_h264dsp_init_arm(H264DSPContext *c, const int bit_depth,
 diff -u -I '/tmp/ffconf\.' -x .git -x config.h -x config_components.h -x '*tests' -x '*.pc' -x ffmpeg_g -x ffprobe_g -x ffmpeg -x ffprobe -x .version -x '*.so' -x '*.so.*' -x '*.ver.*' -x '*.a' -x '*.o' -x '*.d' -x '*.S' -x '*.asm' -x doc -x ffversion.h -r a/libavcodec/hevc/cabac.c b/libavcodec/hevc/cabac.c
 --- a/libavcodec/hevc/cabac.c	2026-04-20 09:38:30.531237163 +0200
-+++ b/libavcodec/hevc/cabac.c	2026-04-01 22:05:09.315698190 +0200
++++ b/libavcodec/hevc/cabac.c	2026-04-22 14:50:41.175644037 +0200
 @@ -1002,13 +1002,9 @@
      int x_cg_last_sig, y_cg_last_sig;
  
@@ -1626,14 +1642,14 @@ diff -u -I '/tmp/ffconf\.' -x .git -x config.h -x config_components.h -x '*tests
                  dc_scale = sl->sl_dc[log2_trafo_size - 4][matrix_id];
          }
 +    } else if (mv_only) {
-+        /* In MV-only mode, we still need to parse transform_skip_flag
-+         * if it's in the bitstream (CABAC sync) */
++        /* MV-only: only transform_skip_flag needs parsing for CABAC sync;
++         * shift/add/scale/scale_m/dc_scale/qp are never consumed (we return
++         * before dequant at the `if (mv_only) return;` below). */
 +        if (!lc->cu.cu_transquant_bypass_flag &&
 +            pps->transform_skip_enabled_flag &&
 +            log2_trafo_size <= pps->log2_max_transform_skip_block_size) {
 +            transform_skip_flag = hevc_transform_skip_flag_decode(lc, c_idx);
 +        }
-+        shift = add = scale = scale_m = dc_scale = qp = 0;
      } else {
          shift        = 0;
          add          = 0;
@@ -1685,28 +1701,7 @@ diff -u -I '/tmp/ffconf\.' -x .git -x config.h -x config_components.h -x '*tests
              for (m = 0; m < n_end; m++) {
                  n = significant_coeff_flag_idx[m];
                  GET_COORD(offset, n);
-@@ -1400,6 +1458,20 @@
-                         rice_init = 1;
-                     }
-                 }
-+////
-+//                 if (mv_only && !pps->sign_data_hiding_flag) {
-+//                     coeff_sign_flag <<= 1;
-+//                     continue;
-+//                 }
-+                
-+//                 if (mv_only) {
-+//                     /* Skip sign application, dequant, and coefficient storage */
-+//                     if (pps->sign_data_hiding_flag && sign_hidden)
-+//                         sum_abs += trans_coeff_level;
-+//                     coeff_sign_flag <<= 1;
-+//                     continue;
-+//                 }
-+// ////
-                 if (pps->sign_data_hiding_flag && sign_hidden) {
-                     sum_abs += trans_coeff_level;
-                     if (n == first_nz_pos_in_cg && (sum_abs&1))
-@@ -1433,9 +1505,13 @@
+@@ -1433,9 +1491,13 @@
                  }
                  coeffs[y_c * trafo_size + x_c] = trans_coeff_level;
              }
@@ -1739,7 +1734,7 @@ diff -u -I '/tmp/ffconf\.' -x .git -x config.h -x config_components.h -x '*tests
          (s->avctx->skip_loop_filter >= AVDISCARD_NONKEY && !IS_IDR(s)) ||
 diff -u -I '/tmp/ffconf\.' -x .git -x config.h -x config_components.h -x '*tests' -x '*.pc' -x ffmpeg_g -x ffprobe_g -x ffmpeg -x ffprobe -x .version -x '*.so' -x '*.so.*' -x '*.ver.*' -x '*.a' -x '*.o' -x '*.d' -x '*.S' -x '*.asm' -x doc -x ffversion.h -r a/libavcodec/hevc/hevcdec.c b/libavcodec/hevc/hevcdec.c
 --- a/libavcodec/hevc/hevcdec.c	2026-04-20 09:38:30.531237163 +0200
-+++ b/libavcodec/hevc/hevcdec.c	2026-04-17 09:30:59.422793263 +0200
++++ b/libavcodec/hevc/hevcdec.c	2026-04-22 14:52:56.524173535 +0200
 @@ -33,6 +33,7 @@
  #include "libavutil/internal.h"
  #include "libavutil/md5.h"
@@ -1995,6 +1990,15 @@ diff -u -I '/tmp/ffconf\.' -x .git -x config.h -x config_components.h -x '*tests
      for (j = 0; j < size_in_pus; j++)
          memset(&l->tab_ipm[(y_pu + j) * min_pu_width + x_pu], INTRA_DC, size_in_pus);
      if (lc->cu.pred_mode == MODE_INTRA)
+@@ -2441,7 +2500,7 @@
+         lc->pu.intra_pred_mode[x] = 1;
+     if (pps->transquant_bypass_enable_flag) {
+         lc->cu.cu_transquant_bypass_flag = ff_hevc_cu_transquant_bypass_flag_decode(lc);
+-        if (lc->cu.cu_transquant_bypass_flag)
++        if (lc->cu.cu_transquant_bypass_flag && !s->motion_vectors_only)
+             set_deblocking_bypass(l->is_pcm, sps, x0, y0, log2_cb_size);
+     } else
+         lc->cu.cu_transquant_bypass_flag = 0;
 @@ -2472,7 +2531,7 @@
                              x0, y0, cb_size, cb_size, log2_cb_size, 0, idx);
          intra_prediction_unit_default_value(lc, l, sps, x0, y0, log2_cb_size);
@@ -2004,6 +2008,15 @@ diff -u -I '/tmp/ffconf\.' -x .git -x config.h -x config_components.h -x '*tests
              ff_hevc_deblocking_boundary_strengths(lc, l, pps, x0, y0, log2_cb_size);
      } else {
          int pcm_flag = 0;
+@@ -2495,7 +2554,7 @@
+             if (pcm_flag) {
+                 intra_prediction_unit_default_value(lc, l, sps, x0, y0, log2_cb_size);
+                 ret = hls_pcm_sample(lc, l, pps, x0, y0, log2_cb_size);
+-                if (sps->pcm_loop_filter_disabled)
++                if (sps->pcm_loop_filter_disabled && !s->motion_vectors_only)
+                     set_deblocking_bypass(l->is_pcm, sps, x0, y0, log2_cb_size);
+ 
+                 if (ret < 0)
 @@ -2577,7 +2636,7 @@
                  if (ret < 0)
                      return ret;
@@ -2013,7 +2026,24 @@ diff -u -I '/tmp/ffconf\.' -x .git -x config.h -x config_components.h -x '*tests
                      ff_hevc_deblocking_boundary_strengths(lc, l, pps, x0, y0, log2_cb_size);
              }
          }
-@@ -2777,9 +2836,11 @@
+@@ -2586,10 +2645,12 @@
+     if (pps->cu_qp_delta_enabled_flag && lc->tu.is_cu_qp_delta_coded == 0)
+         ff_hevc_set_qPy(lc, l, pps, x0, y0, log2_cb_size);
+ 
+-    x = y_cb * min_cb_width + x_cb;
+-    for (y = 0; y < length; y++) {
+-        memset(&l->qp_y_tab[x], lc->qp_y, length);
+-        x += min_cb_width;
++    if (!s->motion_vectors_only) {
++        x = y_cb * min_cb_width + x_cb;
++        for (y = 0; y < length; y++) {
++            memset(&l->qp_y_tab[x], lc->qp_y, length);
++            x += min_cb_width;
++        }
+     }
+ 
+     if(((x0 + (1<<log2_cb_size)) & qp_block_mask) == 0 &&
+@@ -2777,9 +2838,11 @@
          hls_sao_param(lc, l, pps, sps,
                        x_ctb >> sps->log2_ctb_size, y_ctb >> sps->log2_ctb_size);
  
@@ -2028,7 +2058,7 @@ diff -u -I '/tmp/ffconf\.' -x .git -x config.h -x config_components.h -x '*tests
  
          more_data = hls_coding_quadtree(lc, l, pps, sps, x_ctb, y_ctb, sps->log2_ctb_size, 0);
          if (more_data < 0) {
-@@ -2790,7 +2851,8 @@
+@@ -2790,7 +2853,8 @@
  
          ctb_addr_ts++;
          ff_hevc_save_states(lc, pps, ctb_addr_ts);
@@ -2038,7 +2068,7 @@ diff -u -I '/tmp/ffconf\.' -x .git -x config.h -x config_components.h -x '*tests
      }
  
      if (x_ctb + ctb_size >= sps->width &&
-@@ -2848,9 +2910,11 @@
+@@ -2848,9 +2912,11 @@
          hls_sao_param(lc, l, pps, sps,
                        x_ctb >> sps->log2_ctb_size, y_ctb >> sps->log2_ctb_size);
  
@@ -2053,7 +2083,7 @@ diff -u -I '/tmp/ffconf\.' -x .git -x config.h -x config_components.h -x '*tests
  
          more_data = hls_coding_quadtree(lc, l, pps, sps, x_ctb, y_ctb, sps->log2_ctb_size, 0);
  
-@@ -2863,7 +2927,8 @@
+@@ -2863,7 +2929,8 @@
  
          ff_hevc_save_states(lc, pps, ctb_addr_ts);
          ff_thread_progress_report(&s->wpp_progress[ctb_row], ++progress);
@@ -2063,7 +2093,7 @@ diff -u -I '/tmp/ffconf\.' -x .git -x config.h -x config_components.h -x '*tests
  
          if (!more_data && (x_ctb+ctb_size) < sps->width && ctb_row != s->sh.num_entry_point_offsets) {
              /* Casting const away here is safe, because it is an atomic operation. */
-@@ -3345,7 +3410,8 @@
+@@ -3345,7 +3412,8 @@
      else
          s->cur_frame->f->flags &= ~AV_FRAME_FLAG_KEY;
  
@@ -2073,7 +2103,7 @@ diff -u -I '/tmp/ffconf\.' -x .git -x config.h -x config_components.h -x '*tests
                                 s->sei.common.film_grain_characteristics->present) ||
                                s->sei.common.aom_film_grain.enable) &&
          !(s->avctx->export_side_data & AV_CODEC_EXPORT_DATA_FILM_GRAIN) &&
-@@ -3481,14 +3547,185 @@
+@@ -3481,14 +3549,185 @@
             s->poc, msg_buf);
  
      return err;
@@ -2214,8 +2244,8 @@ diff -u -I '/tmp/ffconf\.' -x .git -x config.h -x config_components.h -x '*tests
 +        av_free(mvs_full);
 +        av_free(mvs_compact);
 +        return 0;
-     }
- 
++    }
++
 +    if (compact) {
 +        sd = av_frame_new_side_data(frame->f, AV_FRAME_DATA_MOTION_VECTORS_COMPACT,
 +                                    num_mvs * sizeof(AVMotionVectorCompact));
@@ -2234,8 +2264,8 @@ diff -u -I '/tmp/ffconf\.' -x .git -x config.h -x config_components.h -x '*tests
 +        }
 +        memcpy(sd->data, mvs_full, num_mvs * sizeof(AVMotionVector));
 +        av_free(mvs_full);
-+    }
-+
+     }
+ 
 +    av_log(s->avctx, AV_LOG_DEBUG,
 +           "MV export: POC=%d, merged MVs=%d%s\n",
 +           s->poc, num_mvs, compact ? " (compact)" : "");
@@ -2259,7 +2289,7 @@ diff -u -I '/tmp/ffconf\.' -x .git -x config.h -x config_components.h -x '*tests
      if (out->needs_fg) {
          av_assert0(out->frame_grain->buf[0]);
          fgp = av_film_grain_params_select(out->f);
-@@ -3834,6 +4071,7 @@
+@@ -3834,6 +4073,7 @@
      AVCodecInternal *avci = avctx->internal;
      AVPacket       *avpkt = avci->in_pkt;
  
@@ -2267,7 +2297,7 @@ diff -u -I '/tmp/ffconf\.' -x .git -x config.h -x config_components.h -x '*tests
      int ret;
      uint8_t *sd;
      size_t sd_size;
-@@ -4209,6 +4447,8 @@
+@@ -4209,6 +4449,8 @@
          AV_OPT_TYPE_BOOL, {.i64 = 0}, 0, 1, PAR },
      { "strict-displaywin", "strictly apply default display window size", OFFSET(apply_defdispwin),
          AV_OPT_TYPE_BOOL, {.i64 = 0}, 0, 1, PAR },
@@ -2336,7 +2366,7 @@ diff -u -I '/tmp/ffconf\.' -x .git -x config.h -x config_components.h -x '*tests
                  f->pkt_dts = s->pkt_dts;
 diff -u -I '/tmp/ffconf\.' -x .git -x config.h -x config_components.h -x '*tests' -x '*.pc' -x ffmpeg_g -x ffprobe_g -x ffmpeg -x ffprobe -x .version -x '*.so' -x '*.so.*' -x '*.ver.*' -x '*.a' -x '*.o' -x '*.d' -x '*.S' -x '*.asm' -x doc -x ffversion.h -r a/libavcodec/mpegutils.c b/libavcodec/mpegutils.c
 --- a/libavcodec/mpegutils.c	2026-04-20 09:38:30.599237547 +0200
-+++ b/libavcodec/mpegutils.c	2026-04-17 09:16:13.074940674 +0200
++++ b/libavcodec/mpegutils.c	2026-04-22 13:20:12.100719547 +0200
 @@ -32,7 +32,7 @@
  #include "avcodec.h"
  #include "mpegutils.h"
@@ -2374,7 +2404,7 @@ diff -u -I '/tmp/ffconf\.' -x .git -x config.h -x config_components.h -x '*tests
      if (avctx->debug & (FF_DEBUG_QP | FF_DEBUG_MB_TYPE)) {
          int x,y;
          AVBPrint buf;
-@@ -300,3 +312,118 @@
+@@ -300,3 +312,117 @@
          av_bprint_finalize(&buf, NULL);
      }
  }
@@ -2491,7 +2521,6 @@ diff -u -I '/tmp/ffconf\.' -x .git -x config.h -x config_components.h -x '*tests
 +            av_frame_remove_side_data(pict, sd_type);
 +        }
 +    }
-+
 +}
 diff -u -I '/tmp/ffconf\.' -x .git -x config.h -x config_components.h -x '*tests' -x '*.pc' -x ffmpeg_g -x ffprobe_g -x ffmpeg -x ffprobe -x .version -x '*.so' -x '*.so.*' -x '*.ver.*' -x '*.a' -x '*.o' -x '*.d' -x '*.S' -x '*.asm' -x doc -x ffversion.h -r a/libavcodec/mpegutils.h b/libavcodec/mpegutils.h
 --- a/libavcodec/mpegutils.h	2026-04-20 09:38:30.599237547 +0200
