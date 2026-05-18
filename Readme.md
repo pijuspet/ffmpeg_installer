@@ -2,32 +2,80 @@
 
 Build and install FFmpeg from source with custom patches.
 
-## Prerequisites
+---
 
-git, gcc, make, patch, pkg-config, and python3 must be installed.
+## Linux
 
-## Usage
+### Prerequisites
 
-**Build:**
+git, gcc, make, patch, pkg-config, and nasm must be installed.
+
+### Build
 
 ```bash
 make build
 ```
 
-This runs the full pipeline automatically: checks dependencies, clones the FFmpeg `release/8.0` branch, applies the two patch files (`ffmpeg_version.diff` and `hevc-patch.diff`), runs `./configure`, and compiles using all available CPU cores.
+Checks dependencies, clones the FFmpeg `release/8.0` branch, applies `custom_ffmpeg.diff`, runs `./configure`, and compiles using all available CPU cores.
 
-**Install:**
+### Install
 
 ```bash
 sudo make install
 ```
 
-Installs the built binaries to `/usr/local` (the default prefix).
+Installs the built binaries and libraries to `/usr/local` (the default prefix).
 
-**Verify:**
+### Verify
 
 ```bash
 make verify
+```
+
+---
+
+## Windows (MSYS2 / MinGW64)
+
+### Prerequisites
+
+1. Install [MSYS2](https://www.msys2.org/).
+2. Open **"MSYS2 MinGW x64"** from the Start Menu (not "MSYS2 MSYS").
+3. Install build dependencies:
+
+```bash
+make -f makefile.windows deps
+```
+
+This runs `pacman -S` for the MinGW64 toolchain, nasm, pkg-config, git, patch, and diffutils.
+
+### Build
+
+```bash
+make -f makefile.windows build
+```
+
+### Install
+
+```bash
+make -f makefile.windows install
+```
+
+Installs to `./ffmpeg-custom/` by default (relative to the installer directory).
+Override with `PREFIX`:
+
+```bash
+make -f makefile.windows install PREFIX=/c/ffmpeg-custom
+```
+
+### Runtime DLLs
+
+The DLLs are placed in `$(PREFIX)/bin/`.  
+Add that folder to your Windows `PATH`, or copy the `*.dll` files next to any binary that links against them.
+
+### Verify
+
+```bash
+make -f makefile.windows verify
 ```
 
 ## What the patch changes

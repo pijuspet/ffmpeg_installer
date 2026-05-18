@@ -1,0 +1,120 @@
+SHELL         := /bin/bash
+
+# ── Configurable variables ───────────────────────────────────────────────────
+PATCH         ?= custom_ffmpeg.diff
+CLONE_DIR     ?= ffmpeg
+BRANCH        ?= release/8.0
+JOBS          ?= $(shell nproc 2>/dev/null || echo 4)
+
+# Install into a local directory by default so it does not touch the MSYS2
+# system tree.
+PREFIX        ?= $(CURDIR)/ffmpeg-custom
+
+REPO_URL      := https://github.com/ffmpeg/ffmpeg.git
+
+# ── Targets ──────────────────────────────────────────────────────────────────
+
+# Verify we are inside the MSYS2 MINGW64 environment, not plain MSYS or CMD.
+check-shell:
+	@if [ "$$MSYSTEM" != "MINGW64" ]; then \
+		echo "[ERROR] Run this from the MSYS2 MINGW64 shell."; \
+		echo "        Open 'MSYS2 MinGW x64' from the Start Menu, not 'MSYS2 MSYS'."; \
+		exit 1; \
+	fi
+	@echo "[OK]    Running in MINGW64."
+
+# Install all required build tools via pacman.
+deps: check-shell
+	@echo "[INFO]  Installing MSYS2/MinGW64 build dependencies..."
+	pacman -S --needed --noconfirm \
+		mingw-w64-x86_64-toolchain \
+		make git patch diffutils \
+		mingw-w64-x86_64-nasm \
+		mingw-w64-x86_64-pkg-config
+	@echo "[OK]    Dependencies installed."
+
+clone: check-shell
+	@echo "[INFO]  Cloning FFmpeg $(BRANCH)..."
+	@if [ -d "$(CLONE_DIR)/.git" ]; then \
+		echo "[WARN]  $(CLONE_DIR) exists — resetting."; \
+		cd $(CLONE_DIR) && git fetch --all --tags --prune \
+			&& git checkout $(BRANCH) \
+			&& git reset --hard origin/$(BRANCH) \
+			&& git clean -fdx; \
+	else \
+		git clone -b $(BRANCH) $(REPO_URL) $(CLONE_DIR); \
+	fi
+	@echo "[OK]    Clone complete."
+
+patch: clone
+	@cd $(CLONE_DIR) && for p in ../$(PATCH); do \
+		name=$$(basename $$p); \
+		echo "[INFO]  Applying patch: $$name..."; \
+		if patch -p1 --forward --force < $$p; then \
+			echo "[OK]    $$name applied cleanly."; \
+		elif patch -p1 --reverse --batch --dry-run < $$p >/dev/null 2>&1; then \
+			echo "[WARN]  $$name already applied — skipping."; \
+		else \
+			REJECTS=$$(find . -name '*.rej' ! -path './doc/*'); \
+			if [ -n "$$REJECTS" ]; then \
+				echo "[ERROR] Critical hunks rejected in $$name:"; \
+				echo "$$REJECTS"; \
+				exit 1; \
+			fi; \
+			echo "[WARN]  $$name applied with non-critical skips."; \
+		fi; \
+		rm -f $$(find . -name '*.rej' -o -name '*.orig') 2>/dev/null; \
+	done
+
+configure: patch
+	@echo "[INFO]  Running ./configure (MinGW64/Windows target)..."
+	@cd $(CLONE_DIR) && ./configure \
+		'--prefix=$(PREFIX)' \
+		--enable-shared \
+		--disable-static \
+		--enable-swresample \
+		--target-os=mingw32 \
+		--arch=x86_64 \
+		$(CONFIGURE_OPTS)
+	@echo "[OK]    Configure complete."
+
+build: configure
+	@echo "[INFO]  Building FFmpeg with $(JOBS) jobs..."
+	@$(MAKE) -C $(CLONE_DIR) -j$(JOBS)
+	@echo "[OK]    Build complete."
+
+install:
+	@echo "[INFO]  Installing to $(PREFIX)..."
+	@$(MAKE) -C $(CLONE_DIR) install
+	@echo "[OK]    Installed."
+	@echo ""
+	@echo "────────────────────────────────────────────────────────────────"
+	@echo "  DLLs are in:  $(PREFIX)/bin"
+	@echo "  To run the extractors, add that folder to your Windows PATH,"
+	@echo "  or copy the *.dll files next to the extractor .exe files."
+	@echo "────────────────────────────────────────────────────────────────"
+
+verify:
+	@PATH='$(PREFIX)/bin':$$PATH '$(PREFIX)/bin/ffmpeg.exe' -version 2>&1 | head -3
+
+clean:
+	@if [ -f "$(CLONE_DIR)/Makefile" ]; then \
+		$(MAKE) -C $(CLONE_DIR) clean 2>/dev/null || true; \
+	fi
+
+distclean:
+	@rm -rf $(CLONE_DIR)
+
+# ── Usage hint ───────────────────────────────────────────────────────────────
+help:
+	@echo ""
+	@echo "  Usage (run from MSYS2 MINGW64 shell):"
+	@echo ""
+	@echo "    make -f makefile.windows deps      # install pacman packages (once)"
+	@echo "    make -f makefile.windows build      # clone → patch → configure → compile"
+	@echo "    make -f makefile.windows install    # copy to PREFIX=$(PREFIX)"
+	@echo "    make -f makefile.windows verify     # print ffmpeg version"
+	@echo ""
+	@echo "  Override PREFIX to change install location:"
+	@echo "    make -f makefile.windows install PREFIX=/c/ffmpeg-custom"
+	@echo ""

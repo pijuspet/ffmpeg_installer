@@ -1,6 +1,6 @@
 diff -u -I '/tmp/ffconf\.' -x .git -x config.h -x config_components.h -x '*tests' -x '*.pc' -x ffmpeg_g -x ffprobe_g -x ffmpeg -x ffprobe -x .version -x '*.so' -x '*.so.*' -x '*.ver.*' -x '*.a' -x '*.o' -x '*.d' -x '*.S' -x '*.asm' -x doc -x ffversion.h -r a/ffbuild/version.sh b/ffbuild/version.sh
---- a/ffbuild/version.sh	2026-04-20 09:38:30.387236351 +0200
-+++ b/ffbuild/version.sh	2026-01-22 12:00:08.864232411 +0100
+--- a/ffbuild/version.sh	2026-05-18 11:08:38.764330888 +0200
++++ b/ffbuild/version.sh	2026-05-06 12:42:20.391216993 +0200
 @@ -45,7 +45,7 @@
      exit
  fi
@@ -11,8 +11,8 @@ diff -u -I '/tmp/ffconf\.' -x .git -x config.h -x config_components.h -x '*tests
  
  # String used for preprocessor guard
 diff -u -I '/tmp/ffconf\.' -x .git -x config.h -x config_components.h -x '*tests' -x '*.pc' -x ffmpeg_g -x ffprobe_g -x ffmpeg -x ffprobe -x .version -x '*.so' -x '*.so.*' -x '*.ver.*' -x '*.a' -x '*.o' -x '*.d' -x '*.S' -x '*.asm' -x doc -x ffversion.h -r a/libavcodec/avcodec.h b/libavcodec/avcodec.h
---- a/libavcodec/avcodec.h	2026-04-20 09:38:30.439236644 +0200
-+++ b/libavcodec/avcodec.h	2026-02-05 13:10:55.532808016 +0100
+--- a/libavcodec/avcodec.h	2026-05-18 11:08:38.788330639 +0200
++++ b/libavcodec/avcodec.h	2026-05-06 12:42:20.391216993 +0200
 @@ -439,6 +439,7 @@
      enum AVMediaType codec_type; /* see AVMEDIA_TYPE_xxx */
      const struct AVCodec  *codec;
@@ -22,8 +22,8 @@ diff -u -I '/tmp/ffconf\.' -x .git -x config.h -x config_components.h -x '*tests
      /**
       * fourcc (LSB first, so "ABCD" -> ('D'<<24) + ('C'<<16) + ('B'<<8) + 'A').
 diff -u -I '/tmp/ffconf\.' -x .git -x config.h -x config_components.h -x '*tests' -x '*.pc' -x ffmpeg_g -x ffprobe_g -x ffmpeg -x ffprobe -x .version -x '*.so' -x '*.so.*' -x '*.ver.*' -x '*.a' -x '*.o' -x '*.d' -x '*.S' -x '*.asm' -x doc -x ffversion.h -r a/libavcodec/decode.c b/libavcodec/decode.c
---- a/libavcodec/decode.c	2026-04-20 09:38:30.487236915 +0200
-+++ b/libavcodec/decode.c	2026-03-31 14:18:36.047803637 +0200
+--- a/libavcodec/decode.c	2026-05-18 11:08:38.800330514 +0200
++++ b/libavcodec/decode.c	2026-05-06 12:42:20.395216829 +0200
 @@ -680,8 +680,9 @@
  
          /* the only case where decode data is not set should be decoders
@@ -37,8 +37,8 @@ diff -u -I '/tmp/ffconf\.' -x .git -x config.h -x config_components.h -x '*tests
          if (frame->private_ref) {
              FrameDecodeData *fdd = frame->private_ref;
 diff -u -I '/tmp/ffconf\.' -x .git -x config.h -x config_components.h -x '*tests' -x '*.pc' -x ffmpeg_g -x ffprobe_g -x ffmpeg -x ffprobe -x .version -x '*.so' -x '*.so.*' -x '*.ver.*' -x '*.a' -x '*.o' -x '*.d' -x '*.S' -x '*.asm' -x doc -x ffversion.h -r a/libavcodec/h264_cabac.c b/libavcodec/h264_cabac.c
---- a/libavcodec/h264_cabac.c	2026-04-20 09:38:30.523237117 +0200
-+++ b/libavcodec/h264_cabac.c	2026-04-22 15:37:05.031842964 +0200
+--- a/libavcodec/h264_cabac.c	2026-05-18 11:08:38.812330389 +0200
++++ b/libavcodec/h264_cabac.c	2026-05-18 11:07:59.284293948 +0200
 @@ -1775,37 +1775,6 @@
  
  }
@@ -558,8 +558,8 @@ diff -u -I '/tmp/ffconf\.' -x .git -x config.h -x config_components.h -x '*tests
  
      return 0;
 diff -u -I '/tmp/ffconf\.' -x .git -x config.h -x config_components.h -x '*tests' -x '*.pc' -x ffmpeg_g -x ffprobe_g -x ffmpeg -x ffprobe -x .version -x '*.so' -x '*.so.*' -x '*.ver.*' -x '*.a' -x '*.o' -x '*.d' -x '*.S' -x '*.asm' -x doc -x ffversion.h -r a/libavcodec/h264_cavlc.c b/libavcodec/h264_cavlc.c
---- a/libavcodec/h264_cavlc.c	2026-04-20 09:38:30.523237117 +0200
-+++ b/libavcodec/h264_cavlc.c	2026-04-22 15:44:26.563466478 +0200
+--- a/libavcodec/h264_cavlc.c	2026-05-18 11:08:38.812330389 +0200
++++ b/libavcodec/h264_cavlc.c	2026-05-06 12:42:20.395216829 +0200
 @@ -402,7 +402,7 @@
   * @param max_coeff number of coefficients in the block
   * @return <0 if an error occurred
@@ -935,8 +935,8 @@ diff -u -I '/tmp/ffconf\.' -x .git -x config.h -x config_components.h -x '*tests
  
      return 0;
 diff -u -I '/tmp/ffconf\.' -x .git -x config.h -x config_components.h -x '*tests' -x '*.pc' -x ffmpeg_g -x ffprobe_g -x ffmpeg -x ffprobe -x .version -x '*.so' -x '*.so.*' -x '*.ver.*' -x '*.a' -x '*.o' -x '*.d' -x '*.S' -x '*.asm' -x doc -x ffversion.h -r a/libavcodec/h264_mb.c b/libavcodec/h264_mb.c
---- a/libavcodec/h264_mb.c	2026-04-20 09:38:30.523237117 +0200
-+++ b/libavcodec/h264_mb.c	2026-02-05 09:53:25.761153283 +0100
+--- a/libavcodec/h264_mb.c	2026-05-18 11:08:38.812330389 +0200
++++ b/libavcodec/h264_mb.c	2026-05-06 12:42:20.395216829 +0200
 @@ -799,6 +799,10 @@
  
  void ff_h264_hl_decode_mb(const H264Context *h, H264SliceContext *sl)
@@ -949,8 +949,8 @@ diff -u -I '/tmp/ffconf\.' -x .git -x config.h -x config_components.h -x '*tests
      const int mb_type = h->cur_pic.mb_type[mb_xy];
      int is_complex    = CONFIG_SMALL || sl->is_complex ||
 diff -u -I '/tmp/ffconf\.' -x .git -x config.h -x config_components.h -x '*tests' -x '*.pc' -x ffmpeg_g -x ffprobe_g -x ffmpeg -x ffprobe -x .version -x '*.so' -x '*.so.*' -x '*.ver.*' -x '*.a' -x '*.o' -x '*.d' -x '*.S' -x '*.asm' -x doc -x ffversion.h -r a/libavcodec/h264_mvpred.h b/libavcodec/h264_mvpred.h
---- a/libavcodec/h264_mvpred.h	2026-04-20 09:38:30.523237117 +0200
-+++ b/libavcodec/h264_mvpred.h	2026-04-22 14:54:34.960248777 +0200
+--- a/libavcodec/h264_mvpred.h	2026-05-18 11:08:38.812330389 +0200
++++ b/libavcodec/h264_mvpred.h	2026-05-13 08:53:39.769426832 +0200
 @@ -959,7 +959,8 @@
  
      write_back_motion(h, sl, mb_type);
@@ -962,9 +962,9 @@ diff -u -I '/tmp/ffconf\.' -x .git -x config.h -x config_components.h -x '*tests
      sl->prev_mb_skipped            = 1;
  }
 diff -u -I '/tmp/ffconf\.' -x .git -x config.h -x config_components.h -x '*tests' -x '*.pc' -x ffmpeg_g -x ffprobe_g -x ffmpeg -x ffprobe -x .version -x '*.so' -x '*.so.*' -x '*.ver.*' -x '*.a' -x '*.o' -x '*.d' -x '*.S' -x '*.asm' -x doc -x ffversion.h -r a/libavcodec/h264_parser.c b/libavcodec/h264_parser.c
---- a/libavcodec/h264_parser.c	2026-04-20 09:38:30.523237117 +0200
-+++ b/libavcodec/h264_parser.c	2026-02-02 08:42:49.250068787 +0100
-@@ -593,6 +593,14 @@
+--- a/libavcodec/h264_parser.c	2026-05-18 11:08:38.812330389 +0200
++++ b/libavcodec/h264_parser.c	2026-05-18 11:07:16.397382633 +0200
+@@ -596,6 +596,14 @@
  
      if (!p->got_first) {
          p->got_first = 1;
@@ -979,7 +979,7 @@ diff -u -I '/tmp/ffconf\.' -x .git -x config.h -x config_components.h -x '*tests
          if (avctx->extradata_size) {
              ff_h264_decode_extradata(avctx->extradata, avctx->extradata_size,
                                       &p->ps, &p->is_avc, &p->nal_length_size,
-@@ -677,7 +685,9 @@
+@@ -684,7 +692,9 @@
  
      p->reference_dts = AV_NOPTS_VALUE;
      p->last_frame_num = INT_MAX;
@@ -991,8 +991,8 @@ diff -u -I '/tmp/ffconf\.' -x .git -x config.h -x config_components.h -x '*tests
  }
  
 diff -u -I '/tmp/ffconf\.' -x .git -x config.h -x config_components.h -x '*tests' -x '*.pc' -x ffmpeg_g -x ffprobe_g -x ffmpeg -x ffprobe -x .version -x '*.so' -x '*.so.*' -x '*.ver.*' -x '*.a' -x '*.o' -x '*.d' -x '*.S' -x '*.asm' -x doc -x ffversion.h -r a/libavcodec/h264_picture.c b/libavcodec/h264_picture.c
---- a/libavcodec/h264_picture.c	2026-04-20 09:38:30.523237117 +0200
-+++ b/libavcodec/h264_picture.c	2026-02-05 13:36:27.646040713 +0100
+--- a/libavcodec/h264_picture.c	2026-05-18 11:08:38.812330389 +0200
++++ b/libavcodec/h264_picture.c	2026-05-06 12:42:20.395216829 +0200
 @@ -71,10 +71,10 @@
          av_refstruct_replace(&dst->ref_index[i],       src->ref_index[i]);
      }
@@ -1031,8 +1031,8 @@ diff -u -I '/tmp/ffconf\.' -x .git -x config.h -x config_components.h -x '*tests
  
          err = AVERROR_INVALIDDATA;
 diff -u -I '/tmp/ffconf\.' -x .git -x config.h -x config_components.h -x '*tests' -x '*.pc' -x ffmpeg_g -x ffprobe_g -x ffmpeg -x ffprobe -x .version -x '*.so' -x '*.so.*' -x '*.ver.*' -x '*.a' -x '*.o' -x '*.d' -x '*.S' -x '*.asm' -x doc -x ffversion.h -r a/libavcodec/h264_ps.c b/libavcodec/h264_ps.c
---- a/libavcodec/h264_ps.c	2026-04-20 09:38:30.523237117 +0200
-+++ b/libavcodec/h264_ps.c	2026-02-23 10:03:53.841677744 +0100
+--- a/libavcodec/h264_ps.c	2026-05-18 11:08:38.812330389 +0200
++++ b/libavcodec/h264_ps.c	2026-05-06 12:42:20.395216829 +0200
 @@ -133,6 +133,15 @@
  static inline int decode_vui_parameters(GetBitContext *gb, void *logctx,
                                          SPS *sps)
@@ -1070,8 +1070,8 @@ diff -u -I '/tmp/ffconf\.' -x .git -x config.h -x config_components.h -x '*tests
      if (pps->chroma_qp_index_offset[0] != pps->chroma_qp_index_offset[1])
          pps->chroma_qp_diff = 1;
 diff -u -I '/tmp/ffconf\.' -x .git -x config.h -x config_components.h -x '*tests' -x '*.pc' -x ffmpeg_g -x ffprobe_g -x ffmpeg -x ffprobe -x .version -x '*.so' -x '*.so.*' -x '*.ver.*' -x '*.a' -x '*.o' -x '*.d' -x '*.S' -x '*.asm' -x doc -x ffversion.h -r a/libavcodec/h264_refs.c b/libavcodec/h264_refs.c
---- a/libavcodec/h264_refs.c	2026-04-20 09:38:30.523237117 +0200
-+++ b/libavcodec/h264_refs.c	2026-02-23 09:56:22.992194498 +0100
+--- a/libavcodec/h264_refs.c	2026-05-18 11:08:38.812330389 +0200
++++ b/libavcodec/h264_refs.c	2026-05-18 11:07:16.397382633 +0200
 @@ -124,6 +124,8 @@
  
  static int mismatches_ref(const H264Context *h, const H264Picture *pic)
@@ -1082,8 +1082,8 @@ diff -u -I '/tmp/ffconf\.' -x .git -x config.h -x config_components.h -x '*tests
      return (h->cur_pic_ptr->f->width  != f->width ||
              h->cur_pic_ptr->f->height != f->height ||
 diff -u -I '/tmp/ffconf\.' -x .git -x config.h -x config_components.h -x '*tests' -x '*.pc' -x ffmpeg_g -x ffprobe_g -x ffmpeg -x ffprobe -x .version -x '*.so' -x '*.so.*' -x '*.ver.*' -x '*.a' -x '*.o' -x '*.d' -x '*.S' -x '*.asm' -x doc -x ffversion.h -r a/libavcodec/h264_slice.c b/libavcodec/h264_slice.c
---- a/libavcodec/h264_slice.c	2026-04-20 09:38:30.523237117 +0200
-+++ b/libavcodec/h264_slice.c	2026-04-22 15:16:17.660445825 +0200
+--- a/libavcodec/h264_slice.c	2026-05-18 11:08:38.812330389 +0200
++++ b/libavcodec/h264_slice.c	2026-05-18 11:07:16.397382633 +0200
 @@ -129,6 +129,17 @@
  
  static int alloc_scratch_buffers(H264SliceContext *sl, int linesize)
@@ -1230,7 +1230,7 @@ diff -u -I '/tmp/ffconf\.' -x .git -x config.h -x config_components.h -x '*tests
          sl->slice_type_nos == AV_PICTURE_TYPE_B) {
          implicit_weight_table(h, sl, -1);
          if (FRAME_MBAFF(h)) {
-@@ -2534,7 +2587,8 @@
+@@ -2539,7 +2592,8 @@
          top    = 0;
      }
  
@@ -1240,7 +1240,7 @@ diff -u -I '/tmp/ffconf\.' -x .git -x config.h -x config_components.h -x '*tests
  
      if (h->droppable || h->er.error_occurred)
          return;
-@@ -2615,17 +2669,20 @@
+@@ -2620,17 +2674,20 @@
  
              ret = ff_h264_decode_mb_cabac(h, sl);
  
@@ -1264,7 +1264,7 @@ diff -u -I '/tmp/ffconf\.' -x .git -x config.h -x config_components.h -x '*tests
                  sl->mb_y--;
              }
              eos = get_cabac_terminate(&sl->cabac);
-@@ -2635,7 +2692,9 @@
+@@ -2640,7 +2697,9 @@
                  er_add_slice(sl, sl->resync_mb_x, sl->resync_mb_y, sl->mb_x - 1,
                               sl->mb_y, ER_MB_END);
                  if (sl->mb_x >= lf_x_start)
@@ -1275,7 +1275,7 @@ diff -u -I '/tmp/ffconf\.' -x .git -x config.h -x config_components.h -x '*tests
                  goto finish;
              }
              if (sl->cabac.bytestream > sl->cabac.bytestream_end + 2 )
-@@ -2651,7 +2710,9 @@
+@@ -2656,7 +2715,9 @@
              }
  
              if (++sl->mb_x >= h->mb_width) {
@@ -1286,7 +1286,7 @@ diff -u -I '/tmp/ffconf\.' -x .git -x config.h -x config_components.h -x '*tests
                  sl->mb_x = lf_x_start = 0;
                  decode_finish_row(h, sl);
                  ++sl->mb_y;
-@@ -2668,7 +2729,9 @@
+@@ -2673,7 +2734,9 @@
                  er_add_slice(sl, sl->resync_mb_x, sl->resync_mb_y, sl->mb_x - 1,
                               sl->mb_y, ER_MB_END);
                  if (sl->mb_x > lf_x_start)
@@ -1297,7 +1297,7 @@ diff -u -I '/tmp/ffconf\.' -x .git -x config.h -x config_components.h -x '*tests
                  goto finish;
              }
          }
-@@ -2686,16 +2749,20 @@
+@@ -2691,16 +2754,20 @@
  
              ret = ff_h264_decode_mb_cavlc(h, sl);
  
@@ -1320,7 +1320,7 @@ diff -u -I '/tmp/ffconf\.' -x .git -x config.h -x config_components.h -x '*tests
                  sl->mb_y--;
              }
  
-@@ -2708,7 +2775,9 @@
+@@ -2713,7 +2780,9 @@
              }
  
              if (++sl->mb_x >= h->mb_width) {
@@ -1331,7 +1331,7 @@ diff -u -I '/tmp/ffconf\.' -x .git -x config.h -x config_components.h -x '*tests
                  sl->mb_x = lf_x_start = 0;
                  decode_finish_row(h, sl);
                  ++sl->mb_y;
-@@ -2744,7 +2813,9 @@
+@@ -2749,7 +2818,9 @@
                      er_add_slice(sl, sl->resync_mb_x, sl->resync_mb_y,
                                   sl->mb_x - 1, sl->mb_y, ER_MB_END);
                      if (sl->mb_x > lf_x_start)
@@ -1342,7 +1342,7 @@ diff -u -I '/tmp/ffconf\.' -x .git -x config.h -x config_components.h -x '*tests
  
                      goto finish;
                  } else {
-@@ -2822,17 +2893,20 @@
+@@ -2827,17 +2898,20 @@
          if (h->postpone_filter) {
              h->postpone_filter = 0;
  
@@ -1375,8 +1375,8 @@ diff -u -I '/tmp/ffconf\.' -x .git -x config.h -x config_components.h -x '*tests
              }
          }
 diff -u -I '/tmp/ffconf\.' -x .git -x config.h -x config_components.h -x '*tests' -x '*.pc' -x ffmpeg_g -x ffprobe_g -x ffmpeg -x ffprobe -x .version -x '*.so' -x '*.so.*' -x '*.ver.*' -x '*.a' -x '*.o' -x '*.d' -x '*.S' -x '*.asm' -x doc -x ffversion.h -r a/libavcodec/h264dec.c b/libavcodec/h264dec.c
---- a/libavcodec/h264dec.c	2026-04-20 09:38:30.527237140 +0200
-+++ b/libavcodec/h264dec.c	2026-04-16 09:16:28.250267905 +0200
+--- a/libavcodec/h264dec.c	2026-05-18 11:08:38.812330389 +0200
++++ b/libavcodec/h264dec.c	2026-05-06 12:42:20.399216663 +0200
 @@ -97,7 +97,10 @@
                     pack16to32((*mv)[0][0][0], (*mv)[0][0][1]), 4);
      sl->mb_mbaff =
@@ -1425,8 +1425,8 @@ diff -u -I '/tmp/ffconf\.' -x .git -x config.h -x config_components.h -x '*tests
      }
  
 diff -u -I '/tmp/ffconf\.' -x .git -x config.h -x config_components.h -x '*tests' -x '*.pc' -x ffmpeg_g -x ffprobe_g -x ffmpeg -x ffprobe -x .version -x '*.so' -x '*.so.*' -x '*.ver.*' -x '*.a' -x '*.o' -x '*.d' -x '*.S' -x '*.asm' -x doc -x ffversion.h -r a/libavcodec/h264dec.h b/libavcodec/h264dec.h
---- a/libavcodec/h264dec.h	2026-04-20 09:38:30.527237140 +0200
-+++ b/libavcodec/h264dec.h	2026-04-22 15:40:47.166161900 +0200
+--- a/libavcodec/h264dec.h	2026-05-18 11:08:38.816330347 +0200
++++ b/libavcodec/h264dec.h	2026-05-18 11:07:59.284293948 +0200
 @@ -584,6 +584,70 @@
  
  extern const uint16_t ff_h264_mb_sizes[4];
@@ -1499,8 +1499,8 @@ diff -u -I '/tmp/ffconf\.' -x .git -x config.h -x config_components.h -x '*tests
   * Reconstruct bitstream slice_type.
   */
 diff -u -I '/tmp/ffconf\.' -x .git -x config.h -x config_components.h -x '*tests' -x '*.pc' -x ffmpeg_g -x ffprobe_g -x ffmpeg -x ffprobe -x .version -x '*.so' -x '*.so.*' -x '*.ver.*' -x '*.a' -x '*.o' -x '*.d' -x '*.S' -x '*.asm' -x doc -x ffversion.h -r a/libavcodec/h264dsp.c b/libavcodec/h264dsp.c
---- a/libavcodec/h264dsp.c	2026-04-20 09:38:30.527237140 +0200
-+++ b/libavcodec/h264dsp.c	2026-02-05 10:51:31.807706294 +0100
+--- a/libavcodec/h264dsp.c	2026-05-18 11:08:38.816330347 +0200
++++ b/libavcodec/h264dsp.c	2026-05-06 12:42:20.399216663 +0200
 @@ -63,8 +63,41 @@
  #include "h264addpx_template.c"
  #undef BIT_DEPTH
@@ -1581,8 +1581,8 @@ diff -u -I '/tmp/ffconf\.' -x .git -x config.h -x config_components.h -x '*tests
      c->h264_idct_add= FUNC(ff_h264_idct_add, depth);\
      c->h264_idct8_add= FUNC(ff_h264_idct8_add, depth);\
 diff -u -I '/tmp/ffconf\.' -x .git -x config.h -x config_components.h -x '*tests' -x '*.pc' -x ffmpeg_g -x ffprobe_g -x ffmpeg -x ffprobe -x .version -x '*.so' -x '*.so.*' -x '*.ver.*' -x '*.a' -x '*.o' -x '*.d' -x '*.S' -x '*.asm' -x doc -x ffversion.h -r a/libavcodec/h264dsp.h b/libavcodec/h264dsp.h
---- a/libavcodec/h264dsp.h	2026-04-20 09:38:30.527237140 +0200
-+++ b/libavcodec/h264dsp.h	2025-12-18 16:42:38.215409173 +0100
+--- a/libavcodec/h264dsp.h	2026-05-18 11:08:38.816330347 +0200
++++ b/libavcodec/h264dsp.h	2026-03-04 11:33:44.944833160 +0100
 @@ -118,7 +118,7 @@
  } H264DSPContext;
  
@@ -1593,8 +1593,8 @@ diff -u -I '/tmp/ffconf\.' -x .git -x config.h -x config_components.h -x '*tests
                               const int chroma_format_idc);
  void ff_h264dsp_init_arm(H264DSPContext *c, const int bit_depth,
 diff -u -I '/tmp/ffconf\.' -x .git -x config.h -x config_components.h -x '*tests' -x '*.pc' -x ffmpeg_g -x ffprobe_g -x ffmpeg -x ffprobe -x .version -x '*.so' -x '*.so.*' -x '*.ver.*' -x '*.a' -x '*.o' -x '*.d' -x '*.S' -x '*.asm' -x doc -x ffversion.h -r a/libavcodec/hevc/cabac.c b/libavcodec/hevc/cabac.c
---- a/libavcodec/hevc/cabac.c	2026-04-20 09:38:30.531237163 +0200
-+++ b/libavcodec/hevc/cabac.c	2026-04-22 14:50:41.175644037 +0200
+--- a/libavcodec/hevc/cabac.c	2026-05-18 11:08:38.816330347 +0200
++++ b/libavcodec/hevc/cabac.c	2026-05-06 12:42:20.399216663 +0200
 @@ -1002,13 +1002,9 @@
      int x_cg_last_sig, y_cg_last_sig;
  
@@ -1716,14 +1716,14 @@ diff -u -I '/tmp/ffconf\.' -x .git -x config.h -x config_components.h -x '*tests
          if (explicit_rdpcm_flag || (sps->implicit_rdpcm_enabled &&
                                      (pred_mode_intra == 10 || pred_mode_intra == 26))) {
 diff -u -I '/tmp/ffconf\.' -x .git -x config.h -x config_components.h -x '*tests' -x '*.pc' -x ffmpeg_g -x ffprobe_g -x ffmpeg -x ffprobe -x .version -x '*.so' -x '*.so.*' -x '*.ver.*' -x '*.a' -x '*.o' -x '*.d' -x '*.S' -x '*.asm' -x doc -x ffversion.h -r a/libavcodec/hevc/filter.c b/libavcodec/hevc/filter.c
---- a/libavcodec/hevc/filter.c	2026-04-20 09:38:30.531237163 +0200
-+++ b/libavcodec/hevc/filter.c	2026-02-23 10:02:39.218873630 +0100
+--- a/libavcodec/hevc/filter.c	2026-05-18 11:08:38.816330347 +0200
++++ b/libavcodec/hevc/filter.c	2026-05-18 11:07:16.397382633 +0200
 @@ -876,6 +876,13 @@
      const HEVCSPS   *const sps = pps->sps;
      const HEVCContext *const s = lc->parent;
      int x_end = x >= sps->width  - ctb_size;
 +    
-+     if (s->motion_vectors_only) {
++    if (s->motion_vectors_only) {
 +        if (s->avctx->active_thread_type & FF_THREAD_FRAME && x_end)
 +            ff_progress_frame_report(&s->cur_frame->tf, y + ctb_size - 4);
 +        return;
@@ -1733,8 +1733,8 @@ diff -u -I '/tmp/ffconf\.' -x .git -x config.h -x config_components.h -x '*tests
      if (s->avctx->skip_loop_filter >= AVDISCARD_ALL ||
          (s->avctx->skip_loop_filter >= AVDISCARD_NONKEY && !IS_IDR(s)) ||
 diff -u -I '/tmp/ffconf\.' -x .git -x config.h -x config_components.h -x '*tests' -x '*.pc' -x ffmpeg_g -x ffprobe_g -x ffmpeg -x ffprobe -x .version -x '*.so' -x '*.so.*' -x '*.ver.*' -x '*.a' -x '*.o' -x '*.d' -x '*.S' -x '*.asm' -x doc -x ffversion.h -r a/libavcodec/hevc/hevcdec.c b/libavcodec/hevc/hevcdec.c
---- a/libavcodec/hevc/hevcdec.c	2026-04-20 09:38:30.531237163 +0200
-+++ b/libavcodec/hevc/hevcdec.c	2026-04-22 14:52:56.524173535 +0200
+--- a/libavcodec/hevc/hevcdec.c	2026-05-18 11:08:38.816330347 +0200
++++ b/libavcodec/hevc/hevcdec.c	2026-05-06 12:42:20.399216663 +0200
 @@ -33,6 +33,7 @@
  #include "libavutil/internal.h"
  #include "libavutil/md5.h"
@@ -1986,7 +1986,7 @@ diff -u -I '/tmp/ffconf\.' -x .git -x config.h -x config_components.h -x '*tests
  
      if (size_in_pus == 0)
          size_in_pus = 1;
-+    // if (!s->motion_vectors_only)
++    // if (!s->motion_vectors_only) // what to do with this??
      for (j = 0; j < size_in_pus; j++)
          memset(&l->tab_ipm[(y_pu + j) * min_pu_width + x_pu], INTRA_DC, size_in_pus);
      if (lc->cu.pred_mode == MODE_INTRA)
@@ -2307,8 +2307,8 @@ diff -u -I '/tmp/ffconf\.' -x .git -x config.h -x config_components.h -x '*tests
          .offset = OFFSET(view_ids), .type = AV_OPT_TYPE_INT | AV_OPT_TYPE_FLAG_ARRAY,
          .min = -1, .max = INT_MAX, .flags = PAR },
 diff -u -I '/tmp/ffconf\.' -x .git -x config.h -x config_components.h -x '*tests' -x '*.pc' -x ffmpeg_g -x ffprobe_g -x ffmpeg -x ffprobe -x .version -x '*.so' -x '*.so.*' -x '*.ver.*' -x '*.a' -x '*.o' -x '*.d' -x '*.S' -x '*.asm' -x doc -x ffversion.h -r a/libavcodec/hevc/hevcdec.h b/libavcodec/hevc/hevcdec.h
---- a/libavcodec/hevc/hevcdec.h	2026-04-20 09:38:30.531237163 +0200
-+++ b/libavcodec/hevc/hevcdec.h	2026-02-11 18:33:43.884059915 +0100
+--- a/libavcodec/hevc/hevcdec.h	2026-05-18 11:08:38.816330347 +0200
++++ b/libavcodec/hevc/hevcdec.h	2026-05-06 12:42:20.399216663 +0200
 @@ -563,6 +563,7 @@
      int is_nalff;           ///< this flag is != 0 if bitstream is encapsulated
                              ///< as a format defined in 14496-15
@@ -2326,8 +2326,8 @@ diff -u -I '/tmp/ffconf\.' -x .git -x config.h -x config_components.h -x '*tests
  /**
   * Get the number of candidate references for the current frame.
 diff -u -I '/tmp/ffconf\.' -x .git -x config.h -x config_components.h -x '*tests' -x '*.pc' -x ffmpeg_g -x ffprobe_g -x ffmpeg -x ffprobe -x .version -x '*.so' -x '*.so.*' -x '*.ver.*' -x '*.a' -x '*.o' -x '*.d' -x '*.S' -x '*.asm' -x doc -x ffversion.h -r a/libavcodec/hevc/refs.c b/libavcodec/hevc/refs.c
---- a/libavcodec/hevc/refs.c	2026-04-20 09:38:30.535237185 +0200
-+++ b/libavcodec/hevc/refs.c	2026-04-01 21:48:53.209719848 +0200
+--- a/libavcodec/hevc/refs.c	2026-05-18 11:08:38.816330347 +0200
++++ b/libavcodec/hevc/refs.c	2026-05-18 11:07:16.397382633 +0200
 @@ -158,7 +158,22 @@
              }
          }
@@ -2352,7 +2352,7 @@ diff -u -I '/tmp/ffconf\.' -x .git -x config.h -x config_components.h -x '*tests
          if (ret < 0)
              goto fail;
  
-@@ -305,6 +320,11 @@
+@@ -308,6 +323,11 @@
              int output = !discard && (layers_active_output & (1 << min_layer));
  
              if (output) {
@@ -2365,8 +2365,8 @@ diff -u -I '/tmp/ffconf\.' -x .git -x config.h -x config_components.h -x '*tests
                      f->flags |= AV_FRAME_FLAG_CORRUPT;
                  f->pkt_dts = s->pkt_dts;
 diff -u -I '/tmp/ffconf\.' -x .git -x config.h -x config_components.h -x '*tests' -x '*.pc' -x ffmpeg_g -x ffprobe_g -x ffmpeg -x ffprobe -x .version -x '*.so' -x '*.so.*' -x '*.ver.*' -x '*.a' -x '*.o' -x '*.d' -x '*.S' -x '*.asm' -x doc -x ffversion.h -r a/libavcodec/mpegutils.c b/libavcodec/mpegutils.c
---- a/libavcodec/mpegutils.c	2026-04-20 09:38:30.599237547 +0200
-+++ b/libavcodec/mpegutils.c	2026-04-22 13:20:12.100719547 +0200
+--- a/libavcodec/mpegutils.c	2026-05-18 11:08:38.848330014 +0200
++++ b/libavcodec/mpegutils.c	2026-05-18 11:07:59.284293948 +0200
 @@ -32,7 +32,7 @@
  #include "avcodec.h"
  #include "mpegutils.h"
@@ -2396,15 +2396,7 @@ diff -u -I '/tmp/ffconf\.' -x .git -x config.h -x config_components.h -x '*tests
  void ff_draw_horiz_band(AVCodecContext *avctx,
                          const AVFrame *cur, const AVFrame *last,
                          int y, int h, int picture_structure,
-@@ -247,7 +260,6 @@
-     if (avctx->hwaccel || !mbtype_table)
-         return;
- 
--
-     if (avctx->debug & (FF_DEBUG_QP | FF_DEBUG_MB_TYPE)) {
-         int x,y;
-         AVBPrint buf;
-@@ -300,3 +312,117 @@
+@@ -300,3 +313,117 @@
          av_bprint_finalize(&buf, NULL);
      }
  }
@@ -2523,8 +2515,8 @@ diff -u -I '/tmp/ffconf\.' -x .git -x config.h -x config_components.h -x '*tests
 +    }
 +}
 diff -u -I '/tmp/ffconf\.' -x .git -x config.h -x config_components.h -x '*tests' -x '*.pc' -x ffmpeg_g -x ffprobe_g -x ffmpeg -x ffprobe -x .version -x '*.so' -x '*.so.*' -x '*.ver.*' -x '*.a' -x '*.o' -x '*.d' -x '*.S' -x '*.asm' -x doc -x ffversion.h -r a/libavcodec/mpegutils.h b/libavcodec/mpegutils.h
---- a/libavcodec/mpegutils.h	2026-04-20 09:38:30.599237547 +0200
-+++ b/libavcodec/mpegutils.h	2026-04-16 09:15:46.785219905 +0200
+--- a/libavcodec/mpegutils.h	2026-05-18 11:08:38.848330014 +0200
++++ b/libavcodec/mpegutils.h	2026-05-06 12:42:20.403216498 +0200
 @@ -109,4 +109,13 @@
                            const int8_t *qscale_table, int16_t (*const motion_val[2])[2],
                            int mb_width, int mb_height, int mb_stride, int quarter_sample);
@@ -2540,8 +2532,8 @@ diff -u -I '/tmp/ffconf\.' -x .git -x config.h -x config_components.h -x '*tests
 +
  #endif /* AVCODEC_MPEGUTILS_H */
 diff -u -I '/tmp/ffconf\.' -x .git -x config.h -x config_components.h -x '*tests' -x '*.pc' -x ffmpeg_g -x ffprobe_g -x ffmpeg -x ffprobe -x .version -x '*.so' -x '*.so.*' -x '*.ver.*' -x '*.a' -x '*.o' -x '*.d' -x '*.S' -x '*.asm' -x doc -x ffversion.h -r a/libavcodec/options_table.h b/libavcodec/options_table.h
---- a/libavcodec/options_table.h	2026-04-20 09:38:30.615237637 +0200
-+++ b/libavcodec/options_table.h	2026-02-23 09:44:19.967610706 +0100
+--- a/libavcodec/options_table.h	2026-05-18 11:08:38.856329931 +0200
++++ b/libavcodec/options_table.h	2026-05-06 12:42:20.403216498 +0200
 @@ -72,6 +72,7 @@
  {"bitexact", "use only bitexact functions (except (I)DCT)", 0, AV_OPT_TYPE_CONST, {.i64 = AV_CODEC_FLAG_BITEXACT }, INT_MIN, INT_MAX, A|V|S|D|E, .unit = "flags"},
  {"aic", "H.263 advanced intra coding / MPEG-4 AC prediction", 0, AV_OPT_TYPE_CONST, {.i64 = AV_CODEC_FLAG_AC_PRED }, INT_MIN, INT_MAX, V|E, .unit = "flags"},
@@ -2551,8 +2543,8 @@ diff -u -I '/tmp/ffconf\.' -x .git -x config.h -x config_components.h -x '*tests
  {"output_corrupt", "Output even potentially corrupted frames", 0, AV_OPT_TYPE_CONST, {.i64 = AV_CODEC_FLAG_OUTPUT_CORRUPT }, INT_MIN, INT_MAX, V|D, .unit = "flags"},
  {"flags2", NULL, OFFSET(flags2), AV_OPT_TYPE_FLAGS, {.i64 = DEFAULT}, 0, UINT_MAX, V|A|E|D|S, .unit = "flags2"},
 diff -u -I '/tmp/ffconf\.' -x .git -x config.h -x config_components.h -x '*tests' -x '*.pc' -x ffmpeg_g -x ffprobe_g -x ffmpeg -x ffprobe -x .version -x '*.so' -x '*.so.*' -x '*.ver.*' -x '*.a' -x '*.o' -x '*.d' -x '*.S' -x '*.asm' -x doc -x ffversion.h -r a/libavcodec/svq3.c b/libavcodec/svq3.c
---- a/libavcodec/svq3.c	2026-04-20 09:38:30.659237885 +0200
-+++ b/libavcodec/svq3.c	2025-12-18 16:42:38.347409614 +0100
+--- a/libavcodec/svq3.c	2026-05-18 11:08:38.876329722 +0200
++++ b/libavcodec/svq3.c	2026-03-04 11:33:45.004262572 +0100
 @@ -1262,7 +1262,7 @@
      if (!s->cur_pic->f || !s->last_pic->f || !s->next_pic->f)
          return AVERROR(ENOMEM);
@@ -2563,8 +2555,8 @@ diff -u -I '/tmp/ffconf\.' -x .git -x config.h -x config_components.h -x '*tests
      ff_videodsp_init(&s->vdsp, 8);
  
 diff -u -I '/tmp/ffconf\.' -x .git -x config.h -x config_components.h -x '*tests' -x '*.pc' -x ffmpeg_g -x ffprobe_g -x ffmpeg -x ffprobe -x .version -x '*.so' -x '*.so.*' -x '*.ver.*' -x '*.a' -x '*.o' -x '*.d' -x '*.S' -x '*.asm' -x doc -x ffversion.h -r a/libavcodec/x86/h264_cabac.c b/libavcodec/x86/h264_cabac.c
---- a/libavcodec/x86/h264_cabac.c	2026-04-20 09:38:30.731238292 +0200
-+++ b/libavcodec/x86/h264_cabac.c	2026-02-18 09:22:19.621714740 +0100
+--- a/libavcodec/x86/h264_cabac.c	2026-05-18 11:08:38.904329431 +0200
++++ b/libavcodec/x86/h264_cabac.c	2026-05-18 11:06:55.414717189 +0200
 @@ -203,6 +203,173 @@
      );
      return coeff_count;
@@ -2740,8 +2732,8 @@ diff -u -I '/tmp/ffconf\.' -x .git -x config.h -x config_components.h -x '*tests
  
  #endif /* HAVE_INLINE_ASM */
 diff -u -I '/tmp/ffconf\.' -x .git -x config.h -x config_components.h -x '*tests' -x '*.pc' -x ffmpeg_g -x ffprobe_g -x ffmpeg -x ffprobe -x .version -x '*.so' -x '*.so.*' -x '*.ver.*' -x '*.a' -x '*.o' -x '*.d' -x '*.S' -x '*.asm' -x doc -x ffversion.h -r a/libavutil/frame.h b/libavutil/frame.h
---- a/libavutil/frame.h	2026-04-20 09:38:31.059240143 +0200
-+++ b/libavutil/frame.h	2026-04-15 11:13:42.153885005 +0200
+--- a/libavutil/frame.h	2026-05-18 11:08:38.988328556 +0200
++++ b/libavutil/frame.h	2026-05-06 12:42:20.411216168 +0200
 @@ -254,6 +254,13 @@
       * libavutil/tdrdi.h.
       */
@@ -2757,8 +2749,8 @@ diff -u -I '/tmp/ffconf\.' -x .git -x config.h -x config_components.h -x '*tests
  
  enum AVActiveFormatDescription {
 diff -u -I '/tmp/ffconf\.' -x .git -x config.h -x config_components.h -x '*tests' -x '*.pc' -x ffmpeg_g -x ffprobe_g -x ffmpeg -x ffprobe -x .version -x '*.so' -x '*.so.*' -x '*.ver.*' -x '*.a' -x '*.o' -x '*.d' -x '*.S' -x '*.asm' -x doc -x ffversion.h -r a/libavutil/motion_vector.h b/libavutil/motion_vector.h
---- a/libavutil/motion_vector.h	2026-04-20 09:38:31.079240256 +0200
-+++ b/libavutil/motion_vector.h	2026-04-16 09:13:47.648446358 +0200
+--- a/libavutil/motion_vector.h	2026-05-18 11:08:38.992328515 +0200
++++ b/libavutil/motion_vector.h	2026-05-06 12:42:20.411216168 +0200
 @@ -54,4 +54,19 @@
      uint16_t motion_scale;
  } AVMotionVector;
