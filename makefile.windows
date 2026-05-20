@@ -12,6 +12,15 @@ PREFIX        ?= $(CURDIR)/ffmpeg-custom
 
 REPO_URL      := https://github.com/ffmpeg/ffmpeg.git
 
+VIDEO         ?= bigbunny_walking.mp4
+TEST_OUTPUT   ?= mv_test.mp4
+MV_CSV        ?= motion_vectors.csv
+
+# C++ extractor build settings
+EXTRACTOR_EXE ?= extractor.exe
+CUSTOM        ?= 1
+CXXFLAGS      ?= -std=c++17 -O2
+
 # ── Targets ──────────────────────────────────────────────────────────────────
 
 # Verify we are inside the MSYS2 MINGW64 environment, not plain MSYS or CMD.
@@ -97,6 +106,44 @@ install:
 verify:
 	@PATH='$(PREFIX)/bin':$$PATH '$(PREFIX)/bin/ffmpeg.exe' -version 2>&1 | head -3
 
+test-mv:
+	@if [ ! -f "$(VIDEO)" ]; then \
+		echo "[ERROR] Video not found: $(VIDEO)"; \
+		echo "        Set VIDEO= to your input file, e.g.:"; \
+		echo "        make -f makefile.windows test-mv VIDEO=clip.mp4"; \
+		exit 1; \
+	fi
+	@echo "[INFO]  Extracting motion vectors from $(VIDEO) → $(TEST_OUTPUT)..."
+	@PATH='$(PREFIX)/bin':$$PATH '$(PREFIX)/bin/ffmpeg.exe' \
+		-flags2 +export_mvs \
+		-i '$(VIDEO)' \
+		-vf 'codecview=mv=pf+bf+bb' \
+		'$(TEST_OUTPUT)'
+	@echo "[OK]    Done. Open $(TEST_OUTPUT) to verify motion vector overlay."
+
+build-extractor: check-shell
+	@echo "[INFO]  Building extractor.cpp (CUSTOM=$(CUSTOM))..."
+	@g++ $(CXXFLAGS) \
+		-I'$(PREFIX)/include' \
+		-L'$(PREFIX)/lib' \
+		$(if $(filter 1,$(CUSTOM)),-DCUSTOM_FFMPEG,) \
+		extractor.cpp -o '$(EXTRACTOR_EXE)' \
+		-lavformat -lavcodec -lavutil
+	@echo "[OK]    $(EXTRACTOR_EXE) built."
+
+run-extractor:
+	@if [ ! -f "$(EXTRACTOR_EXE)" ]; then \
+		echo "[ERROR] $(EXTRACTOR_EXE) not found — run: make -f makefile.windows build-extractor"; \
+		exit 1; \
+	fi
+	@if [ ! -f "$(VIDEO)" ]; then \
+		echo "[ERROR] Video not found: $(VIDEO)"; \
+		exit 1; \
+	fi
+	@echo "[INFO]  Extracting MVs: $(VIDEO) → $(MV_CSV)..."
+	@PATH='$(PREFIX)/bin':$$PATH './$(EXTRACTOR_EXE)' '$(VIDEO)' '$(MV_CSV)'
+	@echo "[OK]    Done."
+
 clean:
 	@if [ -f "$(CLONE_DIR)/Makefile" ]; then \
 		$(MAKE) -C $(CLONE_DIR) clean 2>/dev/null || true; \
@@ -114,7 +161,19 @@ help:
 	@echo "    make -f makefile.windows build      # clone → patch → configure → compile"
 	@echo "    make -f makefile.windows install    # copy to PREFIX=$(PREFIX)"
 	@echo "    make -f makefile.windows verify     # print ffmpeg version"
+	@echo "    make -f makefile.windows test-mv VIDEO=clip.mp4               # overlay MVs"
+	@echo "    make -f makefile.windows build-extractor                      # compile extractor.exe (C++)"
+	@echo "    make -f makefile.windows build-extractor CUSTOM=0             # build against stock FFmpeg headers"
+	@echo "    make -f makefile.windows run-extractor VIDEO=clip.mp4         # extract MVs to CSV via C++ extractor"
+	@echo ""
+	@echo "  CSV columns:"
+	@echo "    CUSTOM=0 (default): frame,pts_time,pict_type,source,w,h,src_x,src_y,dst_x,dst_y,flags"
+	@echo "    CUSTOM=1:           frame,pts_time,pict_type,source,src_x,src_y,dst_x,dst_y"
 	@echo ""
 	@echo "  Override PREFIX to change install location:"
 	@echo "    make -f makefile.windows install PREFIX=/c/ffmpeg-custom"
+	@echo ""
+	@echo "  Shared options (all optional):"
+	@echo "    VIDEO=$(VIDEO)  CUSTOM=$(CUSTOM)"
+	@echo "    TEST_OUTPUT=$(TEST_OUTPUT)   MV_CSV=$(MV_CSV)"
 	@echo ""
