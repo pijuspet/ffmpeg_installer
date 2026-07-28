@@ -39,6 +39,30 @@ static void write_hex(FILE* f, uint64_t v) {
     fprintf(f, "0x%llx", (unsigned long long)v);
 }
 
+// Mirrors the decoder's mv_l0_only setting; assigned from L0_ONLY in main().
+static int g_l0_only = 1;
+
+// Row filter shared by both writers, matching what the rest of the pipeline
+// keeps (mv_diff::compare_list0 joins on source == -1, and mv_compare skips
+// zero-size vectors on both sides):
+//
+//   * list-0 only — source == -1. libavcodec's H.264/MPEG export sets source to
+//     exactly -1 (list 0) or +1 (list 1), so this drops every list-1 row.
+//     Redundant on a custom-FFmpeg build, where the mv_l0_only AVOption already
+//     stopped the decoder emitting them; it is what gives a stock build the
+//     same output. Skipped when L0_ONLY=0, matching the option.
+//     NOTE: HEVC instead encodes source as +/-(ref_idx + 1), so list-0 rows with
+//     ref_idx > 0 come through as -2, -3, ... and are dropped here too. Widen to
+//     `source < 0` if HEVC list-0 rows with a non-zero ref index are wanted.
+//   * no zero-size vectors — src == dst means the block did not move, so there
+//     is no displacement to record. Also already done in-decoder by the custom
+//     patch; kept here for stock builds.
+static bool keep_mv(int source, int src_x, int src_y, int dst_x, int dst_y) {
+    if (g_l0_only && source != -1) return false;
+    if (src_x == dst_x && src_y == dst_y) return false;
+    return true;
+}
+
 // ── full AVMotionVector ───────────────────────────────────────────────────────
 
 static void write_full_header(FILE* f) {
@@ -56,6 +80,7 @@ static long long write_full_mvs(FILE* csv, int frame_num, AVFrame* frame) {
     for (int i = 0; i < count; i++) {
         const AVMotionVector* mv = &mvs[i];
         if (mv->w == 0 || mv->h == 0) continue;
+        if (!keep_mv(mv->source, mv->src_x, mv->src_y, mv->dst_x, mv->dst_y)) continue;
         fprintf(csv, "%d,%d,%d,%d,%d,%d,%d,%d,",
                 frame_num,
                 (int)mv->source,
@@ -86,16 +111,21 @@ static long long write_compact_mvs(FILE* csv, int frame_num, AVFrame* frame) {
     const AVMotionVectorCompact* mvs =
         reinterpret_cast<const AVMotionVectorCompact*>(sd->data);
     int count = (int)(sd->size / sizeof(AVMotionVectorCompact));
+    long long written = 0;
 
     for (int i = 0; i < count; i++) {
         const AVMotionVectorCompact* mv = &mvs[i];
+        if (!keep_mv(mv->source, mv->src_x, mv->src_y, mv->dst_x, mv->dst_y)) continue;
         fprintf(csv, "%d,%d,%d,%d,%d,%d\n",
                 frame_num,
                 (int)mv->source,
                 (int)mv->src_x, (int)mv->src_y,
                 (int)mv->dst_x, (int)mv->dst_y);
+        written++;
     }
-    return count;
+    // Rows actually written, not the side-data entry count — the caller uses
+    // this for its running total, which must not include filtered-out rows.
+    return written;
 }
 
 #endif // CUSTOM_FFMPEG
@@ -180,6 +210,19 @@ int main(int argc, char* argv[]) {
     dec_ctx->thread_count    = 0; // auto
     dec_ctx->export_side_data |= AV_CODEC_EXPORT_DATA_MVS;
     av_opt_set_int(dec_ctx, "motion_vectors_only", 1, 0);
+
+    // List-0-only export, the same way extractor1.rs does it: ask the decoder
+    // rather than filtering afterwards. `mv_l0_only` is an AVOption added by
+    // custom_ffmpeg.diff, so the decoder skips direction 1 entirely and never
+    // builds those rows (it also sizes its MV buffer for one direction). On
+    // stock FFmpeg the option doesn't exist and av_opt_set_int just returns
+    // AVERROR_OPTION_NOT_FOUND, which is why keep_mv() below still applies the
+    // same filter in user space — that path is what makes CUSTOM=0 output
+    // match CUSTOM=1.
+    // Default on; override with L0_ONLY=0 to also export list-1 rows.
+    const char* l0_env = getenv("L0_ONLY");
+    g_l0_only = (l0_env && strcmp(l0_env, "0") == 0) ? 0 : 1;
+    av_opt_set_int(dec_ctx, "mv_l0_only", g_l0_only, 0);
 
     AVDictionary* dec_opts = nullptr;
     if (avcodec_open2(dec_ctx, codec, &dec_opts) < 0) {

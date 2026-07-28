@@ -12,7 +12,7 @@ diff -u -I '/tmp/ffconf\.' -x .git -x config.h -x config_components.h -x '*tests
  # String used for preprocessor guard
 diff -u -I '/tmp/ffconf\.' -x .git -x config.h -x config_components.h -x '*tests' -x '*.pc' -x ffmpeg_g -x ffprobe_g -x ffmpeg -x ffprobe -x .version -x '*.so' -x '*.so.*' -x '*.ver.*' -x '*.a' -x '*.o' -x '*.d' -x '*.S' -x '*.asm' -x doc -x ffversion.h -r a/libavcodec/avcodec.h b/libavcodec/avcodec.h
 --- a/libavcodec/avcodec.h	2026-07-27 07:58:25.685017694 +0200
-+++ b/libavcodec/avcodec.h	2026-07-15 14:04:27.660250942 +0200
++++ b/libavcodec/avcodec.h	2026-07-27 09:10:52.095061601 +0200
 @@ -439,6 +439,13 @@
      enum AVMediaType codec_type; /* see AVMEDIA_TYPE_xxx */
      const struct AVCodec  *codec;
@@ -44,16 +44,8 @@ diff -u -I '/tmp/ffconf\.' -x .git -x config.h -x config_components.h -x '*tests
              FrameDecodeData *fdd = frame->private_ref;
 diff -u -I '/tmp/ffconf\.' -x .git -x config.h -x config_components.h -x '*tests' -x '*.pc' -x ffmpeg_g -x ffprobe_g -x ffmpeg -x ffprobe -x .version -x '*.so' -x '*.so.*' -x '*.ver.*' -x '*.a' -x '*.o' -x '*.d' -x '*.S' -x '*.asm' -x doc -x ffversion.h -r a/libavcodec/h264_cabac.c b/libavcodec/h264_cabac.c
 --- a/libavcodec/h264_cabac.c	2026-07-27 07:58:25.709018057 +0200
-+++ b/libavcodec/h264_cabac.c	2026-07-15 14:04:27.660676536 +0200
-@@ -31,6 +31,7 @@
- 
- #include "libavutil/attributes.h"
- #include "libavutil/avassert.h"
-+#include "libavutil/time.h"
- #include "config.h"
- #include "cabac.h"
- #include "cabac_functions.h"
-@@ -45,6 +46,13 @@
++++ b/libavcodec/h264_cabac.c	2026-07-28 09:12:10.226122479 +0200
+@@ -45,6 +45,13 @@
  #include "loongarch/h264_cabac.c"
  #endif
  
@@ -67,7 +59,7 @@ diff -u -I '/tmp/ffconf\.' -x .git -x config.h -x config_components.h -x '*tests
  /* Cabac pre state table */
  
  static const int8_t cabac_context_init_I[1024][2] =
-@@ -1313,11 +1321,11 @@
+@@ -1313,11 +1320,11 @@
              ctx++;
          if (sl->top_type        & (MB_TYPE_INTRA16x16|MB_TYPE_INTRA_PCM))
              ctx++;
@@ -81,7 +73,7 @@ diff -u -I '/tmp/ffconf\.' -x .git -x config.h -x config_components.h -x '*tests
              return 0;   /* I4x4 */
      }
  
-@@ -1325,11 +1333,53 @@
+@@ -1325,11 +1332,53 @@
          return 25;  /* PCM */
  
      mb_type = 1; /* I16x16 */
@@ -140,7 +132,7 @@ diff -u -I '/tmp/ffconf\.' -x .git -x config.h -x config_components.h -x '*tests
      return mb_type;
  }
  
-@@ -1367,6 +1417,11 @@
+@@ -1367,6 +1416,11 @@
  
      if (sl->slice_type_nos == AV_PICTURE_TYPE_B)
          ctx += 13;
@@ -152,7 +144,7 @@ diff -u -I '/tmp/ffconf\.' -x .git -x config.h -x config_components.h -x '*tests
      return get_cabac_noinline( &sl->cabac, &sl->cabac_state[11+ctx] );
  }
  
-@@ -1374,12 +1429,12 @@
+@@ -1374,12 +1428,12 @@
  {
      int mode = 0;
  
@@ -169,7 +161,7 @@ diff -u -I '/tmp/ffconf\.' -x .git -x config.h -x config_components.h -x '*tests
  
      return mode + ( mode >= pred_mode );
  }
-@@ -1398,12 +1453,12 @@
+@@ -1398,12 +1452,12 @@
      if (sl->top_type        && h->chroma_pred_mode_table[mbb_xy] != 0)
          ctx++;
  
@@ -185,7 +177,7 @@ diff -u -I '/tmp/ffconf\.' -x .git -x config.h -x config_components.h -x '*tests
          return 2;
      else
          return 3;
-@@ -1417,13 +1472,13 @@
+@@ -1417,13 +1471,13 @@
      cbp_b = sl->top_cbp;
  
      ctx = !(cbp_a & 0x02) + 2 * !(cbp_b & 0x04);
@@ -203,7 +195,7 @@ diff -u -I '/tmp/ffconf\.' -x .git -x config.h -x config_components.h -x '*tests
      return cbp;
  }
  static int decode_cabac_mb_cbp_chroma(H264SliceContext *sl)
-@@ -1437,13 +1492,64 @@
+@@ -1437,13 +1491,64 @@
      ctx = 0;
      if( cbp_a > 0 ) ctx++;
      if( cbp_b > 0 ) ctx += 2;
@@ -270,7 +262,7 @@ diff -u -I '/tmp/ffconf\.' -x .git -x config.h -x config_components.h -x '*tests
  }
  
  static int decode_cabac_p_mb_sub_type(H264SliceContext *sl)
-@@ -1507,15 +1613,15 @@
+@@ -1507,15 +1612,15 @@
  {
      int mvd;
  
@@ -289,7 +281,7 @@ diff -u -I '/tmp/ffconf\.' -x .git -x config.h -x config_components.h -x '*tests
          if( mvd < 4 )
              ctxbase++;
          mvd++;
-@@ -1540,15 +1646,73 @@
+@@ -1540,15 +1645,73 @@
      return get_cabac_bypass_sign( &sl->cabac, -mvd );
  }
  
@@ -365,7 +357,7 @@ diff -u -I '/tmp/ffconf\.' -x .git -x config.h -x config_components.h -x '*tests
      if (mxd == INT_MIN || myd == INT_MIN) \
          return AVERROR_INVALIDDATA; \
      mx += mxd;\
-@@ -1775,37 +1939,6 @@
+@@ -1775,37 +1938,6 @@
  
  }
  
@@ -403,7 +395,7 @@ diff -u -I '/tmp/ffconf\.' -x .git -x config.h -x config_components.h -x '*tests
  /* cat: 0-> DC 16x16  n = 0
   *      1-> AC 16x16  n = luma4x4idx
   *      2-> Luma4x4   n = luma4x4idx
-@@ -1830,7 +1963,7 @@
+@@ -1830,7 +1962,7 @@
          sl->non_zero_count_cache[scan8[n]] = 0;
          return;
      }
@@ -412,7 +404,7 @@ diff -u -I '/tmp/ffconf\.' -x .git -x config.h -x config_components.h -x '*tests
  }
  
  static av_always_inline void
-@@ -1844,7 +1977,7 @@
+@@ -1844,7 +1976,7 @@
          sl->non_zero_count_cache[scan8[n]] = 0;
          return;
      }
@@ -421,7 +413,7 @@ diff -u -I '/tmp/ffconf\.' -x .git -x config.h -x config_components.h -x '*tests
  }
  
  static av_always_inline void decode_cabac_residual_nondc(const H264Context *h,
-@@ -1864,7 +1997,7 @@
+@@ -1864,7 +1996,7 @@
          }
          return;
      }
@@ -430,7 +422,7 @@ diff -u -I '/tmp/ffconf\.' -x .git -x config.h -x config_components.h -x '*tests
  }
  
  static av_always_inline void decode_cabac_luma_residual(const H264Context *h, H264SliceContext *sl,
-@@ -1913,11 +2046,286 @@
+@@ -1913,6 +2045,281 @@
      }
  }
  
@@ -712,13 +704,7 @@ diff -u -I '/tmp/ffconf\.' -x .git -x config.h -x config_components.h -x '*tests
  /**
   * Decode a macroblock.
   * @return 0 if OK, ER_AC_ERROR / ER_DC_ERROR / ER_MV_ERROR if an error is noticed
-  */
--int ff_h264_decode_mb_cabac(const H264Context *h, H264SliceContext *sl)
-+static int decode_mb_cabac_e9(const H264Context *h, H264SliceContext *sl)
- {
-     const SPS *sps = h->ps.sps;
-     int mb_xy;
-@@ -1965,6 +2373,27 @@
+@@ -1965,6 +2372,27 @@
  
      fill_decode_neighbors(h, sl, -(MB_FIELD(sl)));
  
@@ -746,7 +732,7 @@ diff -u -I '/tmp/ffconf\.' -x .git -x config.h -x config_components.h -x '*tests
      if (sl->slice_type_nos == AV_PICTURE_TYPE_B) {
          int ctx = 0;
          av_assert2(sl->slice_type_nos == AV_PICTURE_TYPE_B);
-@@ -1974,50 +2403,50 @@
+@@ -1974,50 +2402,50 @@
          if (!IS_DIRECT(sl->top_type - 1))
              ctx++;
  
@@ -823,7 +809,7 @@ diff -u -I '/tmp/ffconf\.' -x .git -x config.h -x config_components.h -x '*tests
          if (sl->slice_type == AV_PICTURE_TYPE_SI && mb_type)
              mb_type--;
          av_assert2(sl->slice_type_nos == AV_PICTURE_TYPE_I);
-@@ -2027,6 +2456,8 @@
+@@ -2027,6 +2455,8 @@
          sl->intra16x16_pred_mode = ff_h264_i_mb_type_info[mb_type].pred_mode;
          mb_type                  = ff_h264_i_mb_type_info[mb_type].type;
      }
@@ -832,7 +818,7 @@ diff -u -I '/tmp/ffconf\.' -x .git -x config.h -x config_components.h -x '*tests
      if (MB_FIELD(sl))
          mb_type |= MB_TYPE_INTERLACED;
  
-@@ -2061,7 +2492,8 @@
+@@ -2061,7 +2491,8 @@
          h->cbp_table[mb_xy] = 0xf7ef;
          h->chroma_pred_mode_table[mb_xy] = 0;
          // In deblocking, the quantizer is 0
@@ -842,7 +828,7 @@ diff -u -I '/tmp/ffconf\.' -x .git -x config.h -x config_components.h -x '*tests
          // All coeffs are present
          memset(h->non_zero_count[mb_xy], 16, 48);
          h->cur_pic.mb_type[mb_xy] = mb_type;
-@@ -2074,7 +2506,10 @@
+@@ -2074,7 +2505,10 @@
      if( IS_INTRA( mb_type ) ) {
          int i, pred_mode;
          if( IS_INTRA4x4( mb_type ) ) {
@@ -854,7 +840,7 @@ diff -u -I '/tmp/ffconf\.' -x .git -x config.h -x config_components.h -x '*tests
                  mb_type |= MB_TYPE_8x8DCT;
                  for( i = 0; i < 16; i+=4 ) {
                      int pred = pred_intra_mode(h, sl, i);
-@@ -2085,27 +2520,34 @@
+@@ -2085,27 +2519,34 @@
                  for( i = 0; i < 16; i++ ) {
                      int pred = pred_intra_mode(h, sl, i);
                      sl->intra4x4_pred_mode_cache[scan8[i]] = decode_cabac_mb_intra4x4_pred_mode(sl, pred);
@@ -901,7 +887,7 @@ diff -u -I '/tmp/ffconf\.' -x .git -x config.h -x config_components.h -x '*tests
              sl->chroma_pred_mode = pred_mode;
          } else {
              sl->chroma_pred_mode = DC_128_PRED8x8;
-@@ -2332,9 +2774,15 @@
+@@ -2332,9 +2773,15 @@
     }
  
      if( !IS_INTRA16x16( mb_type ) ) {
@@ -920,7 +906,7 @@ diff -u -I '/tmp/ffconf\.' -x .git -x config.h -x config_components.h -x '*tests
      } else {
          if (!decode_chroma && cbp>15) {
              av_log(h->avctx, AV_LOG_ERROR, "gray chroma\n");
-@@ -2344,8 +2792,12 @@
+@@ -2344,8 +2791,12 @@
  
      h->cbp_table[mb_xy] = sl->cbp = cbp;
  
@@ -935,7 +921,7 @@ diff -u -I '/tmp/ffconf\.' -x .git -x config.h -x config_components.h -x '*tests
      }
  
      /* It would be better to do this in fill_decode_caches, but we don't know
-@@ -2393,15 +2845,21 @@
+@@ -2393,15 +2844,21 @@
  
      if( cbp || IS_INTRA16x16( mb_type ) ) {
          const uint8_t *scan, *scan8x8;
@@ -961,7 +947,7 @@ diff -u -I '/tmp/ffconf\.' -x .git -x config.h -x config_components.h -x '*tests
                  ctx= 3;
                  val++;
                  if(val > 2*max_qp){ //prevent infinite loop
-@@ -2424,6 +2882,7 @@
+@@ -2424,6 +2881,7 @@
              sl->chroma_qp[1] = get_chroma_qp(h->ps.pps, 1, sl->qscale);
          }else
              sl->last_qscale_diff=0;
@@ -969,7 +955,7 @@ diff -u -I '/tmp/ffconf\.' -x .git -x config.h -x config_components.h -x '*tests
  
          if(IS_INTERLACED(mb_type)){
              scan8x8 = sl->qscale ? h->field_scan8x8 : h->field_scan8x8_q0;
-@@ -2433,29 +2892,49 @@
+@@ -2433,29 +2891,49 @@
              scan    = sl->qscale ? h->zigzag_scan : h->zigzag_scan_q0;
          }
  
@@ -1030,7 +1016,7 @@ diff -u -I '/tmp/ffconf\.' -x .git -x config.h -x config_components.h -x '*tests
                          }
                      }
                  }
-@@ -2464,20 +2943,31 @@
+@@ -2464,20 +2942,31 @@
                  fill_rectangle(&sl->non_zero_count_cache[scan8[32]], 4, 4, 8, 0, 1);
              }
          } else /* yuv420 */ {
@@ -1067,7 +1053,7 @@ diff -u -I '/tmp/ffconf\.' -x .git -x config.h -x config_components.h -x '*tests
                      }
                  }
              } else {
-@@ -2492,8 +2982,48 @@
+@@ -2492,7 +2981,8 @@
          sl->last_qscale_diff = 0;
      }
  
@@ -1077,46 +1063,6 @@ diff -u -I '/tmp/ffconf\.' -x .git -x config.h -x config_components.h -x '*tests
      write_back_non_zero_count(h, sl);
  
      return 0;
- }
-+
-+static unsigned long long e9_calib_tsc0 = 0;
-+static int64_t e9_calib_wall0 = 0;
-+static unsigned long long e9_total_mb_cycles = 0;
-+static unsigned long long e9_mb_calls = 0;
-+
-+__attribute__((destructor))
-+static void e9_total_profile_report(void)
-+{
-+    if (e9_mv_profile_enabled == 1) {
-+        unsigned long long tsc_elapsed = E9_RDTSC() - e9_calib_tsc0;
-+        int64_t wall_elapsed_us = av_gettime_relative() - e9_calib_wall0;
-+        double cycles_per_us = wall_elapsed_us > 0 ? (double)tsc_elapsed / (double)wall_elapsed_us : 0.0;
-+        fprintf(stderr,
-+                "E9TOTAL mb_calls=%llu total_mb_cycles=%llu total_mb_us=%.1f calib_cycles_per_us=%.1f\n",
-+                e9_mb_calls, e9_total_mb_cycles,
-+                cycles_per_us > 0 ? (double)e9_total_mb_cycles / cycles_per_us : 0.0,
-+                cycles_per_us);
-+    }
-+}
-+
-+int ff_h264_decode_mb_cabac(const H264Context *h, H264SliceContext *sl)
-+{
-+    if (e9_mv_profile_enabled < 0) {
-+        e9_mv_profile_enabled = getenv("E9_PROFILE") != NULL;
-+        if (e9_mv_profile_enabled) {
-+            e9_calib_wall0 = av_gettime_relative();
-+            e9_calib_tsc0 = E9_RDTSC();
-+        }
-+    }
-+    if (!e9_mv_profile_enabled)
-+        return decode_mb_cabac_e9(h, sl);
-+
-+    unsigned long long t0 = E9_RDTSC();
-+    int ret = decode_mb_cabac_e9(h, sl);
-+    e9_total_mb_cycles += E9_RDTSC() - t0;
-+    e9_mb_calls++;
-+    return ret;
-+}
 diff -u -I '/tmp/ffconf\.' -x .git -x config.h -x config_components.h -x '*tests' -x '*.pc' -x ffmpeg_g -x ffprobe_g -x ffmpeg -x ffprobe -x .version -x '*.so' -x '*.so.*' -x '*.ver.*' -x '*.a' -x '*.o' -x '*.d' -x '*.S' -x '*.asm' -x doc -x ffversion.h -r a/libavcodec/h264_cavlc.c b/libavcodec/h264_cavlc.c
 --- a/libavcodec/h264_cavlc.c	2026-07-27 07:58:25.713018118 +0200
 +++ b/libavcodec/h264_cavlc.c	2026-07-07 12:16:36.785656794 +0200
@@ -1510,55 +1456,8 @@ diff -u -I '/tmp/ffconf\.' -x .git -x config.h -x config_components.h -x '*tests
      int is_complex    = CONFIG_SMALL || sl->is_complex ||
 diff -u -I '/tmp/ffconf\.' -x .git -x config.h -x config_components.h -x '*tests' -x '*.pc' -x ffmpeg_g -x ffprobe_g -x ffmpeg -x ffprobe -x .version -x '*.so' -x '*.so.*' -x '*.ver.*' -x '*.a' -x '*.o' -x '*.d' -x '*.S' -x '*.asm' -x doc -x ffversion.h -r a/libavcodec/h264_mvpred.h b/libavcodec/h264_mvpred.h
 --- a/libavcodec/h264_mvpred.h	2026-07-27 07:58:25.713018118 +0200
-+++ b/libavcodec/h264_mvpred.h	2026-07-15 14:04:27.661870783 +0200
-@@ -35,6 +35,46 @@
- #include "libavutil/avassert.h"
- #include "libavutil/mem_internal.h"
- 
-+/* E9_PROFILE: temporary, read-only RDTSC instrumentation isolating the
-+ * B_SKIP/spatial-direct neighbor-cache-fill call site in decode_mb_skip from
-+ * the general per-MB fill_decode_neighbors/fill_decode_caches call site in
-+ * h264_cabac.c, which the flamegraph's function-name-only view conflates.
-+ * Zero overhead unless E9_PROFILE is set; removed once measured. */
-+#include <stdio.h>
-+#include <stdlib.h>
-+#if defined(__x86_64__) || defined(__i386__)
-+#include <x86intrin.h>
-+#define E9_RDTSC() __rdtsc()
-+#else
-+#define E9_RDTSC() 0ULL
-+#endif
-+static int e9_mv_profile_enabled = -1;
-+/* E9_FORCE_ORIGINAL: A/B toggle for benchmarking, forces the pre-optimization
-+ * fill_decode_neighbors()+fill_decode_caches() pair instead of
-+ * fill_decode_neighbors_caches_bskip_direct(). Temporary, removed alongside
-+ * the rest of this instrumentation. */
-+static int e9_force_original = -1;
-+static unsigned long long e9_skip_calls = 0;
-+static unsigned long long e9_bskip_cache_cycles = 0;   /* fill_decode_neighbors+caches, B_SKIP direct */
-+static unsigned long long e9_pskip_neighbors_cycles = 0; /* fill_decode_neighbors, P_SKIP */
-+static unsigned long long e9_skip_direct_motion_cycles = 0; /* ff_h264_pred_direct_motion */
-+static unsigned long long e9_skip_pskip_motion_cycles = 0;  /* pred_pskip_motion */
-+static unsigned long long e9_skip_writeback_cycles = 0;     /* write_back_motion, skip path only */
-+
-+__attribute__((destructor))
-+static void e9_mv_profile_report(void)
-+{
-+    if (e9_mv_profile_enabled == 1) {
-+        fprintf(stderr,
-+                "E9SKIPPROFILE skip_calls=%llu bskip_cache_cycles=%llu "
-+                "pskip_neighbors_cycles=%llu direct_motion_cycles=%llu "
-+                "pskip_motion_cycles=%llu writeback_cycles=%llu\n",
-+                e9_skip_calls, e9_bskip_cache_cycles, e9_pskip_neighbors_cycles,
-+                e9_skip_direct_motion_cycles, e9_skip_pskip_motion_cycles,
-+                e9_skip_writeback_cycles);
-+    }
-+}
-+
- 
- /**
-  * Get the predicted intra4x4 prediction mode.
-@@ -929,6 +969,95 @@
++++ b/libavcodec/h264_mvpred.h	2026-07-28 09:11:38.215766427 +0200
+@@ -929,6 +929,95 @@
  }
  
  /**
@@ -1654,64 +1553,26 @@ diff -u -I '/tmp/ffconf\.' -x .git -x config.h -x config_components.h -x '*tests
   * decodes a P_SKIP or B_SKIP macroblock
   */
  static void av_unused decode_mb_skip(const H264Context *h, H264SliceContext *sl)
-@@ -936,6 +1065,10 @@
-     const int mb_xy = sl->mb_xy;
-     int mb_type     = 0;
- 
-+    if (e9_mv_profile_enabled < 0)
-+        e9_mv_profile_enabled = getenv("E9_PROFILE") != NULL;
-+    e9_skip_calls++;
-+
-     memset(h->non_zero_count[mb_xy], 0, 48);
- 
-     if (MB_FIELD(sl))
-@@ -945,21 +1078,46 @@
+@@ -945,8 +1034,14 @@
          // just for fill_caches. pred_direct_motion will set the real mb_type
          mb_type |= MB_TYPE_L0L1 | MB_TYPE_DIRECT2 | MB_TYPE_SKIP;
          if (sl->direct_spatial_mv_pred) {
 -            fill_decode_neighbors(h, sl, mb_type);
 -            fill_decode_caches(h, sl, mb_type); //FIXME check what is needed and what not ...
-+            unsigned long long e9_t0 = e9_mv_profile_enabled ? E9_RDTSC() : 0;
-+            if (e9_force_original < 0)
-+                e9_force_original = getenv("E9_FORCE_ORIGINAL") != NULL;
-+            if (!e9_force_original && !FRAME_MBAFF(h)) {
++            /* MBAFF has field/frame remapping the trimmed fill doesn't
++             * replicate, so it keeps the general-purpose pair. */
++            if (!FRAME_MBAFF(h)) {
 +                fill_decode_neighbors_caches_bskip_direct(h, sl, mb_type);
 +            } else {
 +                fill_decode_neighbors(h, sl, mb_type);
 +                fill_decode_caches(h, sl, mb_type); //FIXME check what is needed and what not ...
 +            }
-+            if (e9_mv_profile_enabled) e9_bskip_cache_cycles += E9_RDTSC() - e9_t0;
-+        }
-+        {
-+            unsigned long long e9_t0 = e9_mv_profile_enabled ? E9_RDTSC() : 0;
-+            ff_h264_pred_direct_motion(h, sl, &mb_type);
-+            if (e9_mv_profile_enabled) e9_skip_direct_motion_cycles += E9_RDTSC() - e9_t0;
          }
--        ff_h264_pred_direct_motion(h, sl, &mb_type);
+         ff_h264_pred_direct_motion(h, sl, &mb_type);
          mb_type |= MB_TYPE_SKIP;
-     } else {
-         mb_type |= MB_TYPE_16x16 | MB_TYPE_P0L0 | MB_TYPE_P1L0 | MB_TYPE_SKIP;
+@@ -959,7 +1054,8 @@
  
--        fill_decode_neighbors(h, sl, mb_type);
--        pred_pskip_motion(h, sl);
-+        {
-+            unsigned long long e9_t0 = e9_mv_profile_enabled ? E9_RDTSC() : 0;
-+            fill_decode_neighbors(h, sl, mb_type);
-+            if (e9_mv_profile_enabled) e9_pskip_neighbors_cycles += E9_RDTSC() - e9_t0;
-+        }
-+        {
-+            unsigned long long e9_t0 = e9_mv_profile_enabled ? E9_RDTSC() : 0;
-+            pred_pskip_motion(h, sl);
-+            if (e9_mv_profile_enabled) e9_skip_pskip_motion_cycles += E9_RDTSC() - e9_t0;
-+        }
-     }
- 
--    write_back_motion(h, sl, mb_type);
-+    {
-+        unsigned long long e9_t0 = e9_mv_profile_enabled ? E9_RDTSC() : 0;
-+        write_back_motion(h, sl, mb_type);
-+        if (e9_mv_profile_enabled) e9_skip_writeback_cycles += E9_RDTSC() - e9_t0;
-+    }
+     write_back_motion(h, sl, mb_type);
      h->cur_pic.mb_type[mb_xy]      = mb_type;
 -    h->cur_pic.qscale_table[mb_xy] = sl->qscale;
 +    if (!h->avctx->motion_vectors_only)
@@ -2466,7 +2327,7 @@ diff -u -I '/tmp/ffconf\.' -x .git -x config.h -x config_components.h -x '*tests
          (s->avctx->skip_loop_filter >= AVDISCARD_NONKEY && !IS_IDR(s)) ||
 diff -u -I '/tmp/ffconf\.' -x .git -x config.h -x config_components.h -x '*tests' -x '*.pc' -x ffmpeg_g -x ffprobe_g -x ffmpeg -x ffprobe -x .version -x '*.so' -x '*.so.*' -x '*.ver.*' -x '*.a' -x '*.o' -x '*.d' -x '*.S' -x '*.asm' -x doc -x ffversion.h -r a/libavcodec/hevc/hevcdec.c b/libavcodec/hevc/hevcdec.c
 --- a/libavcodec/hevc/hevcdec.c	2026-07-27 07:58:25.715963718 +0200
-+++ b/libavcodec/hevc/hevcdec.c	2026-07-15 14:24:06.478772818 +0200
++++ b/libavcodec/hevc/hevcdec.c	2026-07-27 09:10:52.096689472 +0200
 @@ -33,6 +33,7 @@
  #include "libavutil/internal.h"
  #include "libavutil/md5.h"
@@ -3102,7 +2963,7 @@ diff -u -I '/tmp/ffconf\.' -x .git -x config.h -x config_components.h -x '*tests
                  f->pkt_dts = s->pkt_dts;
 diff -u -I '/tmp/ffconf\.' -x .git -x config.h -x config_components.h -x '*tests' -x '*.pc' -x ffmpeg_g -x ffprobe_g -x ffmpeg -x ffprobe -x .version -x '*.so' -x '*.so.*' -x '*.ver.*' -x '*.a' -x '*.o' -x '*.d' -x '*.S' -x '*.asm' -x doc -x ffversion.h -r a/libavcodec/mpegutils.c b/libavcodec/mpegutils.c
 --- a/libavcodec/mpegutils.c	2026-07-27 07:58:25.745018602 +0200
-+++ b/libavcodec/mpegutils.c	2026-07-27 07:47:39.198531351 +0200
++++ b/libavcodec/mpegutils.c	2026-07-27 09:10:52.096787027 +0200
 @@ -24,6 +24,7 @@
  #include "libavutil/common.h"
  #include "libavutil/emms.h"
@@ -3325,7 +3186,7 @@ diff -u -I '/tmp/ffconf\.' -x .git -x config.h -x config_components.h -x '*tests
  #endif /* AVCODEC_MPEGUTILS_H */
 diff -u -I '/tmp/ffconf\.' -x .git -x config.h -x config_components.h -x '*tests' -x '*.pc' -x ffmpeg_g -x ffprobe_g -x ffmpeg -x ffprobe -x .version -x '*.so' -x '*.so.*' -x '*.ver.*' -x '*.a' -x '*.o' -x '*.d' -x '*.S' -x '*.asm' -x doc -x ffversion.h -r a/libavcodec/options_table.h b/libavcodec/options_table.h
 --- a/libavcodec/options_table.h	2026-07-27 07:58:25.749018663 +0200
-+++ b/libavcodec/options_table.h	2026-07-15 14:04:27.664157499 +0200
++++ b/libavcodec/options_table.h	2026-07-27 09:10:52.097000941 +0200
 @@ -72,6 +72,8 @@
  {"bitexact", "use only bitexact functions (except (I)DCT)", 0, AV_OPT_TYPE_CONST, {.i64 = AV_CODEC_FLAG_BITEXACT }, INT_MIN, INT_MAX, A|V|S|D|E, .unit = "flags"},
  {"aic", "H.263 advanced intra coding / MPEG-4 AC prediction", 0, AV_OPT_TYPE_CONST, {.i64 = AV_CODEC_FLAG_AC_PRED }, INT_MIN, INT_MAX, V|E, .unit = "flags"},
